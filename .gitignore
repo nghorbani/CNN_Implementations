@@ -1,0 +1,5 @@
+*.pyc
+*.pydevproject
+Goodfellow_GenerativeAdversarialNetworks/.project
+*.png
+Goodfellow_GenerativeAdversarialNetworks/data/*
