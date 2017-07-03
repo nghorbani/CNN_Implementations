@@ -5,3 +5,4 @@ Goodfellow_GenerativeAdversarialNetworks/.project
 Goodfellow_GenerativeAdversarialNetworks/data/*
 *.jpg
 Goodfellow_GenerativeAdversarialNetworks/.settings/org.eclipse.core.resources.prefs
+Goodfellow_GenerativeAdversarialNetworks/results/*

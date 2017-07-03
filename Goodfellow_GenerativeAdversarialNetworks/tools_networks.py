@@ -1,57 +1,54 @@
 from tools_general import np, tf
 
-def deconv(X, is_training, kernel, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
+def deconv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
     '''use collectable prefix for accessing weights and biases throughout the code'''
     in_shape = X.get_shape().as_list()
     
-    W = weight_variable([kernel, kernel, Cout, in_shape[3]], trainable=trainable, name='%s_W' % name)  # HWCinCout
+    W = weight_variable([kernel_w, kernel_w, Cout, in_shape[3]], trainable=trainable, name='%s_W' % name)  # HWCinCout
     b = bias_variable([Cout, ], trainable=trainable, name='%s_b' % name)
     
-    out_w = tf.cast(((in_shape[1] - 1) * stride) + kernel, tf.int32)
+    out_w = tf.cast(((in_shape[1] - 1) * stride) + kernel_w, tf.int32)
     output_shape = [in_shape[0], out_w, out_w, Cout]
-    
-    Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding='VALID'), b)
-    if useBN == True:
-        Y = batch_norm(Y, is_training, trainable,name='%s_BN' % name)
-    if act != None:
-        if act.lower() == 'relu':
-            Y = tf.nn.relu(Y)
-        elif act.lower() == 'lrelu':
-            Y = lrelu(Y, leak=0.2)
-        elif act.lower() == 'tanh':
-            Y = tf.nn.tanh(Y)
-        elif act.lower() == 'sigmoid':
-            Y = tf.nn.sigmoid(Y)
-        else:
-            print('Unknown activation function')     
-        
+    with tf.device('/gpu:0'):
+        Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding='VALID'), b)
+        if useBN == True:
+            Y = batch_norm(Y, is_training, trainable,name='%s_BN' % name)
+        if act != None:
+            if act.lower() == 'relu':
+                Y = tf.nn.relu(Y)
+            elif act.lower() == 'lrelu':
+                Y = lrelu(Y, leak=0.2)
+            elif act.lower() == 'tanh':
+                Y = tf.nn.tanh(Y)
+            elif act.lower() == 'sigmoid':
+                Y = tf.nn.sigmoid(Y)
+            else:
+                print('Unknown activation function')     
     if summary:
         tf.summary.histogram('%s_W_histogram' % name, W)
         tf.summary.histogram('%s_bias_histogram' % name, b)
     return Y
 
-def conv(X, is_training, kernel, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
+def conv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
     '''use collectable prefix for accessing weights and biases throughout the code'''
     in_shape = X.get_shape().as_list()
-    W = weight_variable([kernel, kernel, in_shape[3], Cout], trainable=trainable, name='%s_W' % name)  # HWCinCout
+    W = weight_variable([kernel_w, kernel_w, in_shape[3], Cout], trainable=trainable, name='%s_W' % name)  # HWCinCout
     b = bias_variable([Cout, ], trainable=trainable, name='%s_b' % name)
-    Y = tf.nn.bias_add(tf.nn.conv2d(X, W, strides=[1, stride, stride, 1], padding='VALID'), b)
-    
-    if useBN == True:
-        Y = batch_norm(Y, is_training,trainable, name='%s_BN' % name)
-
-        
-    if act != None:
-        if act.lower() == 'relu':
-            Y = tf.nn.relu(Y)
-        elif act.lower() == 'lrelu':
-            Y = lrelu(Y, leak=0.2)
-        elif act.lower() == 'tanh':
-            Y = tf.nn.tanh(Y)
-        elif act.lower() == 'sigmoid':
-            Y = tf.nn.sigmoid(Y)
-        else:
-            print('Unknown activation function')
+    with tf.device('/gpu:0'):
+        Y = tf.nn.bias_add(tf.nn.conv2d(X, W, strides=[1, stride, stride, 1], padding='VALID'), b)
+        if useBN == True:
+            Y = batch_norm(Y, is_training,trainable, name='%s_BN' % name)
+        if act != None:
+            if act.lower() == 'relu':
+                Y = tf.nn.relu(Y)
+            elif act.lower() == 'lrelu':
+                Y = lrelu(Y, leak=0.2)
+            elif act.lower() == 'tanh':
+                Y = tf.nn.tanh(Y)
+            elif act.lower() == 'sigmoid':
+                Y = tf.nn.sigmoid(Y)
+            else:
+                print('Unknown activation function')
             
     if summary:
         tf.summary.histogram('%s_W_histogram' % name, W)

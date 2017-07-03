@@ -1,42 +1,46 @@
 from tools_general import np, tf
 from utils import get_train_params
-from tools_networks import deconv, conv, dense, clipped_crossentropy
+from tools_tensorflow import deconv, conv, dense, clipped_crossentropy
      
 def create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='ganG'):
     '''input : batchsize * 100
         output: batchsize * 28 * 28 * 1'''
     with tf.variable_scope(networktype, reuse=reuse):
-        z = tf.concat(axis=-1, values=[z, labels])
-        Gz = dense(z, is_training, Dout=2 * 2 * 512, act='ReLu', useBN=True, name='dense1')
-        Gz = dense(Gz, is_training, Dout=4 * 4 * 1024, act='ReLu', useBN=True, name='dense2')
-        Gz = tf.reshape(Gz, shape=[-1, 4, 4, 1024])  # 4
-        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=512, trainable=trainable, act='reLu', useBN=True, name='deconv1')  # 11
-        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='reLu', useBN=True, name='deconv2')  # 25
-        Gz = deconv(Gz, is_training, kernel_w=4, stride=1, Cout=1, act=None, useBN=False, name='deconv3')  # 28
+        batch_size = labels.get_shape().as_list()[0]
+        
+        labels_reshaped = tf.reshape(labels, [batch_size, 1, 1, 10])
+        z = tf.concat(axis=-1, values=[z, labels_reshaped * tf.ones([batch_size, 8, 8, 10])])
+        Gz = conv(z, is_training, kernel=2, stride=2, Cout=1024, trainable=trainable, act='ReLu', useBN=True, name='conv1')  # 12
+        Gz = tf.concat(axis=-1, values=[Gz, labels_reshaped * tf.ones([batch_size, 4, 4, 10])])
+        Gz = deconv(Gz, is_training, kernel=5, stride=2, Cout=512, trainable=trainable, act='ReLu', useBN=True, name='deconv1')  # 11
+        Gz = tf.concat(axis=-1, values=[Gz, labels_reshaped * tf.ones([batch_size, 11, 11, 10])])
+        Gz = deconv(Gz, is_training, kernel=5, stride=2, Cout=256, trainable=trainable, act='ReLu', useBN=True, name='deconv2')  # 25
+        Gz = tf.concat(axis=-1, values=[Gz, labels_reshaped * tf.ones([batch_size, 25, 25, 10])])
+        Gz = deconv(Gz, is_training, kernel=4, stride=1, Cout=1, act=None, useBN=False, name='deconv3')  # 28
         Gz = tf.nn.sigmoid(Gz)
     return Gz
 
 def create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networktype='ganD'):
     with tf.variable_scope(networktype, reuse=reuse):
+        batch_size = labels.get_shape().as_list()[0]
         
-        labels_reshaped = tf.reshape(labels, [-1, 1, 1, 10])
-        a = tf.ones([tf.shape(xz)[0], 28, 28, 10])
-        xz = tf.concat([xz, labels_reshaped * a], axis = 3)
-
-        Dxz = conv(xz, is_training, kernel_w=5, stride=2, Cout=512, trainable=trainable, act='lrelu', useBN=False, name='conv1')  # 12
-        Dxz = conv(Dxz, is_training, kernel_w=5, stride=2, Cout=1024, trainable=trainable, act='lrelu', useBN=True, name='conv2')  # 4
-        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1024, trainable=trainable, act='lrelu', useBN=True, name='conv3')  # 2
-        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1, trainable=trainable, act='lrelu', useBN=True, name='conv4')  # 2
-               
+        labels_reshaped = tf.reshape(labels, [batch_size, 1, 1, 10])
+        xz = tf.concat(axis=-1, values=[xz, labels_reshaped * tf.ones([batch_size, 28, 28, 10])])
+        Dxz = conv(xz, is_training, kernel=5, stride=2, Cout=512, trainable=trainable, act='lrelu', useBN=False, name='conv1')  # 12
+        Dxz = tf.concat(axis=-1, values=[Dxz, labels_reshaped * tf.ones([batch_size, 12, 12, 10])])
+        Dxz = conv(Dxz, is_training, kernel=5, stride=2, Cout=1024, trainable=trainable, act='lrelu', useBN=True, name='conv2')  # 4
+        Dxz = tf.concat(axis=-1, values=[Dxz, labels_reshaped * tf.ones([batch_size, 4, 4, 10])])
+        Dxz = conv(Dxz, is_training, kernel=4, stride=4, Cout=1, trainable=trainable, act='lrelu', useBN=True, name='conv3')  # 2
+        #Dxz = conv(Dxz, is_training, kernel=2, stride=2, Cout=1, trainable=trainable, act='lrelu', useBN=True, name='conv4')  # 1
         Dxz = tf.nn.sigmoid(Dxz)
     return Dxz
 
 def create_gan_trainer(base_lr=1e-4, batch_size=128, networktype='gan'):
-    '''Train a Generative Adversarial Network'''
+    '''Train Generative Adversarial Network'''
     # with tf.name_scope('train_%s' % networktype): 
     is_training = tf.placeholder(tf.bool, [], 'is_training')
 
-    inZ = tf.placeholder(tf.float32, [batch_size, 100])  # tf.random_uniform(shape=[batch_size, 100], minval=-1., maxval=1., dtype=tf.float32)
+    inZ = tf.placeholder(tf.float32, [batch_size, 8, 8, 1])  # tf.random_uniform(shape=[batch_size, 100], minval=-1., maxval=1., dtype=tf.float32)
     inL = tf.placeholder(tf.float32, [batch_size, 10])  # we want to condition the generated out put on some parameters of the input
     inX = tf.placeholder(tf.float32, [batch_size, 28, 28, 1])
 
@@ -54,8 +58,8 @@ def create_gan_trainer(base_lr=1e-4, batch_size=128, networktype='gan'):
     Gscore = clipped_crossentropy(DGz, tf.ones_like(DGz))
     Dscore = clipped_crossentropy(DGz, tf.zeros_like(DGz)) + clipped_crossentropy(Dx, tf.ones_like(Dx))
     
-    Gtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gscore, var_list=ganG_var_list)
-    Dtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dscore, var_list=ganD_var_list)
+    Gtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.45).minimize(Gscore, var_list=ganG_var_list)
+    Dtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.4 5).minimize(Dscore, var_list=ganD_var_list)
     
     return Gtrain, Dtrain, Gscore, Dscore, is_training, inZ, inX, inL, Gz
        
@@ -73,7 +77,7 @@ if __name__ == '__main__':
     
     batchsize = 15
     
-    z = tf.constant(0.0, shape=[batchsize, 100])
+    z = tf.constant(0.0, shape=[batchsize, 8, 8, 1])
     xz = tf.constant(0.0, shape=[batchsize, 28, 28, 1])
     labels = OneHot(np.random.randint(10, size=[batchsize]), n=10)
     # labels = OneHot(tf.random_uniform(minval = 0, maxval = 10, shape=[batchsize], dtype = tf.int32), n=10)        

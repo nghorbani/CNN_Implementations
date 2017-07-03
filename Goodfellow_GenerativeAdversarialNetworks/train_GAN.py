@@ -8,7 +8,7 @@ from tools_general import tf, np
 
 networktype = 'ganMNIST'
 batch_size = 128
-base_lr = 0.0003  # 1e-4
+base_lr = 0.0002  # 1e-4
 epochs = 100
  
 data, max_iter, test_iter, test_int, disp_int = get_train_params(batch_size, epochs=epochs, test_in_each_epoch=1, networktype=networktype)
@@ -28,12 +28,12 @@ for it in range(max_iter):
     Z = np.random.uniform(size=[batch_size, 100], low=-1., high=1.).astype(np.float32)
     X, labels = data.train.next_batch(batch_size)
      
-    if it%k == 0:
-        cur_Gscore, _ = sess.run([Gscore, Gtrain], feed_dict={inZ:Z, inL: labels,  is_training:True})
+    if it % k == 0:
+        cur_Gscore, _ = sess.run([Gscore, Gtrain], feed_dict={inZ:Z, inL: labels, is_training:True})
     else:
-        cur_Dscore, _ = sess.run([Dscore, Dtrain], feed_dict={inX: X, inZ:Z,inL: labels, is_training:True})
+        cur_Dscore, _ = sess.run([Dscore, Dtrain], feed_dict={inX: X, inZ:Z, inL: labels, is_training:True})
  
     if it % disp_int == 0:
         Gz_sample = sess.run(Gz, feed_dict={inZ: Z_test, inL: labels_test, is_training:False})
-        vis_square(Gz_sample[:121], [11,11], save_path=expr_dir+'Iter_%d.jpg'%it)
+        vis_square(Gz_sample[:121], [11, 11], save_path=expr_dir + 'Iter_%d.jpg' % it)
         if it != 0: print("Iteration #%4d, Train Gscore = %f, Dscore=%f" % (it, cur_Gscore, cur_Dscore))
