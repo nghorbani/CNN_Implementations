@@ -31,14 +31,14 @@ def create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networkty
         Dxz = tf.nn.sigmoid(Dxz)
     return Dxz
 
-def create_gan_trainer(base_lr=1e-4, batch_size=128, networktype='gan'):
+def create_gan_trainer(base_lr=1e-4, networktype='gan'):
     '''Train a Generative Adversarial Network'''
     # with tf.name_scope('train_%s' % networktype): 
     is_training = tf.placeholder(tf.bool, [], 'is_training')
 
-    inZ = tf.placeholder(tf.float32, [batch_size, 100])  # tf.random_uniform(shape=[batch_size, 100], minval=-1., maxval=1., dtype=tf.float32)
-    inL = tf.placeholder(tf.float32, [batch_size, 10])  # we want to condition the generated out put on some parameters of the input
-    inX = tf.placeholder(tf.float32, [batch_size, 28, 28, 1])
+    inZ = tf.placeholder(tf.float32, [None, 100])  # tf.random_uniform(shape=[batch_size, 100], minval=-1., maxval=1., dtype=tf.float32)
+    inL = tf.placeholder(tf.float32, [None, 10])  # we want to condition the generated out put on some parameters of the input
+    inX = tf.placeholder(tf.float32, [None, 28, 28, 1])
 
     Gz = create_gan_G(inZ, inL, is_training, Cout=1, trainable=True, reuse=False, networktype=networktype + '_G') 
 

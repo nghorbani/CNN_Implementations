@@ -16,7 +16,7 @@ data, max_iter, test_iter, test_int, disp_int = get_train_params(batch_size, epo
 tf.reset_default_graph() 
 sess = tf.InteractiveSession()
 
-Gtrain, Dtrain, Gscore, Dscore, is_training, inZ, inX, inL, Gz = create_gan_trainer(base_lr, batch_size, networktype=networktype)
+Gtrain, Dtrain, Gscore, Dscore, is_training, inZ, inX, inL, Gz = create_gan_trainer(base_lr, networktype=networktype)
 tf.global_variables_initializer().run()
  
 Z_test = np.random.uniform(size=[batch_size, 100], low=-1., high=1.).astype(np.float32)

@@ -3,12 +3,13 @@ from tools_general import np, tf
 def deconv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
     '''use collectable prefix for accessing weights and biases throughout the code'''
     in_shape = X.get_shape().as_list()
+    in_shape2 = tf.shape(X)
     
     W = weight_variable([kernel_w, kernel_w, Cout, in_shape[3]], trainable=trainable, name='%s_W' % name)  # HWCinCout
     b = bias_variable([Cout, ], trainable=trainable, name='%s_b' % name)
     
-    out_w = tf.cast(((in_shape[1] - 1) * stride) + kernel_w, tf.int32)
-    output_shape = [in_shape[0], out_w, out_w, Cout]
+    out_w = tf.cast(((in_shape2[1] - 1) * stride) + kernel_w, tf.int32)
+    output_shape = [in_shape2[0], out_w, out_w, Cout]
     with tf.device('/gpu:0'):
         Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding='VALID'), b)
         if useBN == True:
@@ -105,13 +106,6 @@ def batch_norm(X, is_training,trainable, name='BN', eps=1e-8):
 
     return Y
 
-def xavier(shape, dtype, partition_info=None):
-    fan_in = np.prod(shape[:3])
-    fan_out = np.prod([shape[0], shape[1], shape[3]])
-    w_bound = np.sqrt(6.0 / (fan_in + fan_out))
-    initial_value = np.random.uniform(size=shape, low=-w_bound, high=w_bound)
-    return initial_value
-
 def lrelu(X, leak=0.2):
     Y = tf.maximum(X, leak * X)
     return Y
@@ -130,5 +124,6 @@ def weight_variable(shape, name=None, trainable=True):
     shape: HxWxCinxCout
     """
     with tf.device('/gpu:0'):
-        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, initializer=xavier)
+        #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, initializer=xavier)
+        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, initializer=tf.contrib.layers.xavier_initializer())
     
