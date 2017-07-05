@@ -1,9 +1,9 @@
 from tools_general import np, tf
-from utils import get_train_params
-from tools_networks import deconv, conv, dense, clipped_crossentropy
+from tools_train import get_train_params
+from tools_networks import deconv, conv, dense, clipped_crossentropy, dropout
      
 def create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='ganG'):
-    '''input : batchsize * 100
+    '''input : batchsize * 100 and labels to make the generator conditional
         output: batchsize * 28 * 28 * 1'''
     with tf.variable_scope(networktype, reuse=reuse):
         z = tf.concat(axis=-1, values=[z, labels])
@@ -24,7 +24,9 @@ def create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networkty
         xz = tf.concat([xz, labels_reshaped * a], axis = 3)
 
         Dxz = conv(xz, is_training, kernel_w=5, stride=2, Cout=512, trainable=trainable, act='lrelu', useBN=False, name='conv1')  # 12
+        #Dxz = dropout(Dxz, is_training, p=0.8)
         Dxz = conv(Dxz, is_training, kernel_w=5, stride=2, Cout=1024, trainable=trainable, act='lrelu', useBN=True, name='conv2')  # 4
+        #Dxz = dropout(Dxz, is_training, p=0.8)
         Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1024, trainable=trainable, act='lrelu', useBN=True, name='conv3')  # 2
         Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1, trainable=trainable, act='lrelu', useBN=True, name='conv4')  # 2
                
@@ -64,7 +66,7 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt
     import scipy.misc
-    from utils import OneHot
+    from tools_train import OneHot
    
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()

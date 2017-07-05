@@ -1,5 +1,5 @@
 from tools_general import np, tf
-from utils import get_train_params
+from tools_train import get_train_params
 from tools_tensorflow import deconv, conv, dense, clipped_crossentropy
      
 def create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='ganG'):
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt
     import scipy.misc
-    from utils import OneHot
+    from tools_train import OneHot
    
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()

@@ -106,6 +106,11 @@ def batch_norm(X, is_training,trainable, name='BN', eps=1e-8):
 
     return Y
 
+def dropout(Xin, is_training, p=0.8):
+    with tf.device('/gpu:0'):
+        Xout = tf.cond(is_training, lambda: tf.nn.dropout(Xin, keep_prob=p), lambda: tf.identity(Xin))
+    return Xout
+
 def lrelu(X, leak=0.2):
     Y = tf.maximum(X, leak * X)
     return Y
