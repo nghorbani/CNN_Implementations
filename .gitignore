@@ -1,8 +1,10 @@
 *.pyc
 *.pydevproject
-Goodfellow_GenerativeAdversarialNetworks/.project
+GenerativeAdversarialNetworks/.project
 *.png
-Goodfellow_GenerativeAdversarialNetworks/data/*
+GenerativeAdversarialNetworks/data/*
 *.jpg
-Goodfellow_GenerativeAdversarialNetworks/.settings/org.eclipse.core.resources.prefs
-Goodfellow_GenerativeAdversarialNetworks/results/*
+GenerativeAdversarialNetworks/.settings/org.eclipse.core.resources.prefs
+GenerativeAdversarialNetworks/data/*
+GenerativeAdversarialNetworks/notebooks/*
+GenerativeAdversarialNetworks/results/*

@@ -1,5 +1,14 @@
-from tools_general import np, tf
-from tools_train import get_train_params
+# -*- coding: utf-8 -*-
+'''
+Generative Adversarial Networks - Goodfellow et al
+Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks - Radford et al
+'''
+from tools_config import *
+import os
+import matplotlib.pyplot as plt
+from tools_train import get_train_params, OneHot, vis_square
+from datetime import datetime
+from tools_general import tf, np
 from tools_networks import deconv, conv, dense, clipped_crossentropy, dropout
 
 def concat_labels(X, labels):
@@ -33,7 +42,7 @@ def create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networkty
         Dxz = tf.nn.sigmoid(Dxz)
     return Dxz
 
-def create_gan_trainer(base_lr=1e-4, networktype='gan'):
+def create_dcgan_trainer(base_lr=1e-4, networktype='dcgan'):
     '''Train a Generative Adversarial Network'''
     # with tf.name_scope('train_%s' % networktype): 
     is_training = tf.placeholder(tf.bool, [], 'is_training')
@@ -60,32 +69,46 @@ def create_gan_trainer(base_lr=1e-4, networktype='gan'):
     Dtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dscore, var_list=ganD_var_list)
     
     return Gtrain, Dtrain, Gscore, Dscore, is_training, inZ, inX, inL, Gz
-       
+
 if __name__ == '__main__':
-    from tools_config import *
+    networktype = 'DCGAN_MNIST'
     
-    import matplotlib.pyplot as plt
-    import scipy.misc
-    from tools_train import OneHot
-   
+    batch_size = 128
+    base_lr = 0.001  # 1e-4
+    epochs = 200
+    
+    work_dir = expr_dir + '%s/%s/' % (networktype, datetime.strftime(datetime.today(), '%Y%m%d'))
+    if not os.path.exists(work_dir): os.makedirs(work_dir)
+    
+    data, max_iter, test_iter, test_int, disp_int = get_train_params(data_dir + '/' + networktype, batch_size, epochs=epochs, test_in_each_epoch=1, networktype=networktype)
+    
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
     
-    is_training = tf.placeholder(tf.bool, [], 'is_training')
-    
-    batchsize = 15
-    
-    z = tf.constant(0.0, shape=[batchsize, 100])
-    xz = tf.constant(0.0, shape=[batchsize, 28, 28, 1])
-    labels = OneHot(np.random.randint(10, size=[batchsize]), n=10)
-    # labels = OneHot(tf.random_uniform(minval = 0, maxval = 10, shape=[batchsize], dtype = tf.int32), n=10)        
-    
-    Gz = create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='ganG')
-    Dxz = create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networktype='ganD')
-    
+    Gtrain, Dtrain, Gscore, Dscore, is_training, inZ, inX, inL, Gz = create_dcgan_trainer(base_lr, networktype=networktype)
     tf.global_variables_initializer().run()
-
-    # out = sess.run(Gz, feed_dict = {is_training: False})
-    out = sess.run(Gz, feed_dict={is_training: False})
-
-    print(out.shape)
+    
+    var_list = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES) if (networktype.lower() in var.name.lower()) and ('adam' not in var.name.lower())]  
+    saver = tf.train.Saver(var_list=var_list)
+    # saver.restore(sess, expr_dir + 'ganMNIST/20170707/214_model.ckpt')  
+    
+    Z_test = np.random.uniform(size=[batch_size, 100], low=-1., high=1.).astype(np.float32)
+    labels_test = OneHot(np.random.randint(10, size=[batch_size]), n=10)    
+    
+    k = 1
+     
+    for it in range(1, max_iter): 
+        Z = np.random.uniform(size=[batch_size, 100], low=-1., high=1.).astype(np.float32)
+        X, labels = data.train.next_batch(batch_size)
+         
+        for itD in range(k):
+            cur_Gscore, _ = sess.run([Gscore, Gtrain], feed_dict={inZ:Z, inL:labels, is_training:True})
+    
+        cur_Dscore, _ = sess.run([Dscore, Dtrain], feed_dict={inX:X, inZ:Z, inL:labels, is_training:True})
+     
+        if it % disp_int == 0:
+            Gz_sample = sess.run(Gz, feed_dict={inZ: Z_test, inL: labels_test, is_training:False})
+            vis_square(Gz_sample[:121], [11, 11], save_path=work_dir + 'Iter_%d.jpg' % it)
+            saver.save(sess, work_dir + "%.3d_model.ckpt" % it)
+            if ('cur_Dscore' in vars()) and ('cur_Gscore' in vars()):
+                print("Iteration #%4d, Train Gscore = %f, Dscore=%f" % (it, cur_Gscore, cur_Dscore))
