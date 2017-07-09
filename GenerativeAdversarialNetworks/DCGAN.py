@@ -74,7 +74,7 @@ if __name__ == '__main__':
     networktype = 'DCGAN_MNIST'
     
     batch_size = 128
-    base_lr = 0.001  # 1e-4
+    base_lr = 0.0002  # 1e-4
     epochs = 200
     
     work_dir = expr_dir + '%s/%s/' % (networktype, datetime.strftime(datetime.today(), '%Y%m%d'))
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     tf.global_variables_initializer().run()
     
     var_list = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES) if (networktype.lower() in var.name.lower()) and ('adam' not in var.name.lower())]  
-    saver = tf.train.Saver(var_list=var_list)
+    saver = tf.train.Saver(var_list=var_list, max_to_keep = 1000)
     # saver.restore(sess, expr_dir + 'ganMNIST/20170707/214_model.ckpt')  
     
     Z_test = np.random.uniform(size=[batch_size, 100], low=-1., high=1.).astype(np.float32)
