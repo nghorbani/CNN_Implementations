@@ -6,5 +6,5 @@ GenerativeAdversarialNetworks/data/*
 *.jpg
 GenerativeAdversarialNetworks/.settings/org.eclipse.core.resources.prefs
 GenerativeAdversarialNetworks/data/*
-GenerativeAdversarialNetworks/notebooks/*
 GenerativeAdversarialNetworks/results/*
+GenerativeAdversarialNetworks/notebooks/.ipynb_checkpoints/*
