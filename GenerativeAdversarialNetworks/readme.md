@@ -1,12 +1,12 @@
-# [**Deep Convolutional GANs**](GenerativeAdversarialNetworks/notebooks/DCGAN_MNIST.ipynb)
+# [**Deep Convolutional GANs**](notebooks/DCGAN_MNIST.ipynb)
 
 Class sweep: With the same z slowly move the class labels to smoothly generate different numbers
 
-![alt tag](GenerativeAdversarialNetworks/trained_models/DCGAN_MNIST/class_sweep/class_sweep.gif)
+![alt tag](trained_models/DCGAN_MNIST/class_sweep/class_sweep.gif)
 
 Z-Space interpolaton: Vary a coefficient that determines how much of two different Z values are used to sample from the generator.
 
-![alt tag](GenerativeAdversarialNetworks/trained_models/DCGAN_MNIST/zspace_sweep/zspace_sweep.gif)
+![alt tag](trained_models/DCGAN_MNIST/zspace_sweep/zspace_sweep.gif)
 
 Essentially combination of two works:
 
