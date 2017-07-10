@@ -1,6 +1,6 @@
 from tools_general import np, tf
 
-def deconv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
+def deconv(X, is_training, kernel_w, stride, Cout, trainable=True, act='ReLu', useBN=False, padding = 'VALID', name='deconv'):
     '''use collectable prefix for accessing weights and biases throughout the code'''
     in_shape = X.get_shape().as_list()
     in_shape2 = tf.shape(X)
@@ -10,7 +10,7 @@ def deconv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=Fal
     with tf.device('/gpu:0'):
         out_w = tf.cast(((in_shape2[1] - 1) * stride) + kernel_w, tf.int32)
         output_shape = [in_shape2[0], out_w, out_w, Cout]
-        Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding='VALID'), b)
+        Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding=padding.upper()), b)
         if useBN == True:
             Y = batch_norm(Y, is_training, trainable, name='%s_BN' % name)
         if act != None:
@@ -24,12 +24,9 @@ def deconv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=Fal
                 Y = tf.nn.sigmoid(Y)
             else:
                 print('Unknown activation function')     
-    if summary:
-        tf.summary.histogram('%s_W_histogram' % name, W)
-        tf.summary.histogram('%s_bias_histogram' % name, b)
     return Y
 
-def conv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False, trainable=True, summary=1):
+def conv(X, is_training, kernel_w, stride, Cout, trainable=True, act='ReLu', useBN=False, name='conv'):
     '''use collectable prefix for accessing weights and biases throughout the code'''
     in_shape = X.get_shape().as_list()
     W = weight_variable([kernel_w, kernel_w, in_shape[3], Cout], trainable=trainable, name='%s_W' % name)  # HWCinCout
@@ -49,12 +46,9 @@ def conv(X, is_training, kernel_w, Cout, name, stride=1, act='ReLu', useBN=False
                 Y = tf.nn.sigmoid(Y)
             else:
                 print('Unknown activation function')
-    if summary:
-        tf.summary.histogram('%s_W_histogram' % name, W)
-        tf.summary.histogram('%s_bias_histogram' % name, b)
     return Y
 
-def dense(X, is_training, Dout, name, trainable=True, act='ReLu', useBN=False, summary=1):
+def dense(X, is_training, Dout, trainable=True, act='ReLu', useBN=False, name='dense'):
     shapeIn = X.get_shape().as_list()
     
     with tf.device('/gpu:0'):
@@ -62,9 +56,7 @@ def dense(X, is_training, Dout, name, trainable=True, act='ReLu', useBN=False, s
         b = bias_variable([Dout, ], name='%s_b' % name, trainable=trainable)
         Y = tf.nn.bias_add(tf.matmul(X, W), b)
         if useBN == True:
-            #Y = batch_norm(Y, is_training, trainable,name='%s_BN' % name)
             Y = batch_norm(Y, is_training, trainable, name='%s_BN' % name)
-   
         if act != None:
             if act.lower() == 'relu':
                 Y = tf.nn.relu(Y)
@@ -76,10 +68,6 @@ def dense(X, is_training, Dout, name, trainable=True, act='ReLu', useBN=False, s
                 Y = tf.nn.sigmoid(Y)
             else:
                 print('Unknown activation function')
-    
-    if summary:
-        tf.summary.histogram('%s_W_histogram' % (name), W)
-        tf.summary.histogram('%s_bias_histogram' % (name), b)    
     return Y 
     
 def batch_norm(inputs, is_training, trainable, name, decay=0.9, epsilon=1e-5):
@@ -138,5 +126,5 @@ def weight_variable(shape, name=None, trainable=True):
     shape: HxWxCinxCout
     """
     with tf.device('/gpu:0'):
-        #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
+        # return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
         return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))
