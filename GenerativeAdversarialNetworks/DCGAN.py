@@ -24,21 +24,21 @@ def create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, ne
         output: batchsize * 28 * 28 * 1'''
     with tf.variable_scope(networktype, reuse=reuse):
         z = tf.concat(axis=-1, values=[z, labels])
-        Gz = dense(z, is_training, Dout=4 * 4 * 256, act='reLu', useBN=True, name='dense2')
+        Gz = dense(z, is_training, Dout=4 * 4 * 256, act='reLu', norm='batchnorm', name='dense2')
         Gz = tf.reshape(Gz, shape=[-1, 4, 4, 256])  # 4
-        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='reLu', useBN=True, name='deconv1')  # 11
-        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=128, trainable=trainable, act='reLu', useBN=True, name='deconv2')  # 25
-        Gz = deconv(Gz, is_training, kernel_w=4, stride=1, Cout=1, act=None, useBN=False, name='deconv3')  # 28
+        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='reLu', norm='batchnorm', name='deconv1')  # 11
+        Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=128, trainable=trainable, act='reLu', norm='batchnorm', name='deconv2')  # 25
+        Gz = deconv(Gz, is_training, kernel_w=4, stride=1, Cout=1, act=None, norm=None, name='deconv3')  # 28
         Gz = tf.nn.sigmoid(Gz)
     return Gz
 
 def create_gan_D(xz, labels, is_training, trainable=True, reuse=False, networktype='ganD'):
     with tf.variable_scope(networktype, reuse=reuse):
         xz = concat_labels(xz, labels)
-        Dxz = conv(xz, is_training, kernel_w=5, stride=2, Cout=128, trainable=trainable, act='lrelu', useBN=False, name='conv1')  # 12
-        Dxz = conv(Dxz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='lrelu', useBN=True, name='conv2')  # 4
-        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=256, trainable=trainable, act='lrelu', useBN=True, name='conv3')  # 2
-        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1, trainable=trainable, act='lrelu', useBN=True, name='conv4')  # 2
+        Dxz = conv(xz, is_training, kernel_w=5, stride=2, Cout=128, trainable=trainable, act='lrelu', norm=None, name='conv1')  # 12
+        Dxz = conv(Dxz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='lrelu', norm='batchnorm', name='conv2')  # 4
+        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=256, trainable=trainable, act='lrelu', norm='batchnorm', name='conv3')  # 2
+        Dxz = conv(Dxz, is_training, kernel_w=2, stride=2, Cout=1, trainable=trainable, act='lrelu', norm='batchnorm', name='conv4')  # 2
         Dxz = tf.nn.sigmoid(Dxz)
     return Dxz
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     
     batch_size = 128
     base_lr = 0.0002  # 1e-4
-    epochs = 200
+    epochs = 30
     
     work_dir = expr_dir + '%s/%s/' % (networktype, datetime.strftime(datetime.today(), '%Y%m%d'))
     if not os.path.exists(work_dir): os.makedirs(work_dir)
