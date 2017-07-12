@@ -102,8 +102,8 @@ def batch_norm(inputs, is_training, trainable, name, decay=0.9, epsilon=1e-5):
     '''
     with tf.device('/gpu:0'):
         beta = tf.get_variable(name='%s_beta' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.constant_initializer(0.0))
-        # gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.constant_initializer(1.0))  # scale each channel
-        gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.random_normal_initializer(1.0, 0.02))  # scale each channel
+        gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.constant_initializer(1.0))  # scale each channel
+        #gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.random_normal_initializer(1.0, 0.02))  # scale each channel
         
         pop_mean = tf.get_variable(name='%s_pop_mean' % name, shape=inputs.get_shape()[-1], trainable=False, dtype=tf.float32, initializer=tf.constant_initializer(0.0))
         pop_var = tf.get_variable(name='%s_pop_var' % name, shape=inputs.get_shape()[-1], trainable=False, dtype=tf.float32, initializer=tf.constant_initializer(0.0))
@@ -129,12 +129,13 @@ def batch_norm(inputs, is_training, trainable, name, decay=0.9, epsilon=1e-5):
 def instance_norm(inputs, trainable, name, decay=0.9, epsilon=1e-5):
     with tf.device('/gpu:0'):
         beta = tf.get_variable(name='%s_beta' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.constant_initializer(0.0))
-        gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.random_normal_initializer(1.0, 0.02))  # scale each channel
+        gamma = tf.get_variable(name='%s_scale' % name, shape=inputs.get_shape()[-1], trainable=trainable, dtype=tf.float32, initializer=tf.constant_initializer(1.0))  # scale each channel
         
         if inputs.get_shape().ndims == 4:
             batch_mean, batch_var = tf.nn.moments(inputs, [0, 1, 2])
+            #batch_mean, batch_var = tf.nn.moments(inputs, [1, 2], keep_dims=True)
         elif inputs.get_shape().ndims == 2:
-            batch_mean, batch_var = tf.nn.moments(inputs, [0])
+            batch_mean, batch_var = tf.nn.moments(inputs, [])
 
         return tf.nn.batch_normalization(inputs, batch_mean, batch_var, beta, gamma, epsilon)
 
