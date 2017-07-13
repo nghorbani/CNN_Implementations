@@ -19,4 +19,13 @@ In Adversarial training procedure two models are trained together. The generativ
 Previously Deep Convolutional GANs (Neural Networks) were not that easy to train. The second paper offers some guidelines which makes DCGANs easier to train.
 
 Above we see the results after 200 epochs of training with Adam update rule and learning rate of 0.0002 and beta1 of 0.5 on MNIST dataset.
+# [**Imge-to-Image translation with DCGANs**](notebooks/img2imgGAN.ipynb)
+### Image-to-Image Translation with Conditional Adversarial Networks
+Isola et al 2016_Berkeley AI Research (BAIR) Laboratory
+
+#### Translation of CMP Images to Labels (A2B)
+![alt tag](trained_models/img2imgGAN_CMP_A2B/generated_3.jpg)
+
+#### Translation of CMP Labels to Images (B2A)
+![alt tag](trained_models/img2imgGAN_CMP_B2A/generated_1.jpg)
 
