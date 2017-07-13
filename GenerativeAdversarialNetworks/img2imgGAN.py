@@ -114,7 +114,7 @@ if __name__ == '__main__':
             B_test = Xeval[:4, :, :, :3]
  
     taskImg = retransform(np.concatenate([A_test, B_test]))
-    vis_square(taskImg, [4,2], save_path=work_dir + 'task.jpg')
+    vis_square(taskImg, [2,4], save_path=work_dir + 'task.jpg')
        
     k = 1
       
