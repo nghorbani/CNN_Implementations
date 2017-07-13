@@ -38,5 +38,6 @@ def vis_square(X, nh_nw, save_path=None):
         img[j * h:j * h + h, i * w:i * w + w, :] = x
     if save_path:
         scipy.misc.imsave(save_path, img)
+        return save_path
     else:
         return img

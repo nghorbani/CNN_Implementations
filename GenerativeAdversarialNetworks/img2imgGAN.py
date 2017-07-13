@@ -10,15 +10,6 @@ from tools_general import tf, np
 from tools_networks import clipped_crossentropy, dropout, conv, deconv
 from tools_data import retransform
 
-def concat_labels(X, labels):
-    with tf.variable_scope("deconv"):
-        if X.get_shape().ndims == 4:
-            X_shape = tf.shape(X)
-            labels_reshaped = tf.reshape(labels, [-1, 1, 1, 10])
-            a = tf.ones([X_shape[0], X_shape[1], X_shape[2], 10])
-            X = tf.concat([X, labels_reshaped * a], axis=3)
-    return X
-
 def conch(A, B):
     '''Concatenate channelwise'''
     with tf.variable_scope("deconv"):
@@ -51,10 +42,10 @@ def create_gan_G(GE0, is_training, Cout=3, trainable=True, reuse=False, networkt
         
     return Xout
 
-def create_gan_D(inX, inTarget, is_training, trainable=True, reuse=False, networktype='ganD'):
+def create_gan_D(inSource, inTarget, is_training, trainable=True, reuse=False, networktype='ganD'):
     with tf.variable_scope(networktype, reuse=reuse):
-        inX = conch(inX, inTarget)
-        Dxz = conv(inX, is_training, kernel_w=4, stride=2, Cout=64,  trainable=trainable, act='lrelu', norm=None, name='conv1')  # 128
+        inSource = conch(inSource, inTarget)
+        Dxz = conv(inSource, is_training, kernel_w=4, stride=2, Cout=64,  trainable=trainable, act='lrelu', norm=None, name='conv1')  # 128
         Dxz = conv(Dxz, is_training, kernel_w=4, stride=2, Cout=128, trainable=trainable, act='lrelu', norm='instance', name='conv2')  # 64
         Dxz = conv(Dxz, is_training, kernel_w=4, stride=2, Cout=256, trainable=trainable, act='lrelu', norm='instance', name='conv3')  # 32
         Dxz = conv(Dxz, is_training, kernel_w=1, stride=1, Cout=1,   trainable=trainable, act='lrelu', norm='instance', name='conv4')  # 32
@@ -67,13 +58,13 @@ def create_pix2pix_trainer(base_lr=1e-4, networktype='pix2pix'):
     
     is_training = tf.placeholder(tf.bool, [], 'is_training')
 
-    inX = tf.placeholder(tf.float32, [None, 256, 256, Cout])
+    inSource = tf.placeholder(tf.float32, [None, 256, 256, Cout])
     inTarget = tf.placeholder(tf.float32, [None, 256, 256, Cout])
 
-    GX = create_gan_G(inX, is_training, Cout=Cout, trainable=True, reuse=False, networktype=networktype + '_G') 
+    GX = create_gan_G(inSource, is_training, Cout=Cout, trainable=True, reuse=False, networktype=networktype + '_G') 
 
     DGX = create_gan_D(GX, inTarget, is_training, trainable=True, reuse=False, networktype=networktype + '_D')
-    DX = create_gan_D(inX, inTarget, is_training, trainable=True, reuse=True, networktype=networktype + '_D')
+    DX = create_gan_D(inSource, inTarget, is_training, trainable=True, reuse=True, networktype=networktype + '_D')
     
     ganG_var_list = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_G')
     print(len(ganG_var_list), [var.name for var in ganG_var_list])
@@ -89,10 +80,10 @@ def create_pix2pix_trainer(base_lr=1e-4, networktype='pix2pix'):
     Gtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gscore, var_list=ganG_var_list)
     Dtrain = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dscore, var_list=ganD_var_list)
     
-    return Gtrain, Dtrain, Gscore, Dscore, is_training, inX, inTarget, GX
+    return Gtrain, Dtrain, Gscore, Dscore, is_training, inSource, inTarget, GX
 
 if __name__ == '__main__':
-    direction = 'A2B'
+    direction = 'B2A'
     networktype = 'img2imgGAN_CMP_%s'%direction
     
     batch_size = 1
@@ -107,7 +98,7 @@ if __name__ == '__main__':
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
 
-    Gtrain, Dtrain, Gscore, Dscore, is_training, inX, inTarget, GX = create_pix2pix_trainer(base_lr, networktype=networktype)
+    Gtrain, Dtrain, Gscore, Dscore, is_training, inSource, inTarget, GX = create_pix2pix_trainer(base_lr, networktype=networktype)
     tf.global_variables_initializer().run()
      
     var_list = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES) if (networktype.lower() in var.name.lower()) and ('adam' not in var.name.lower())]  
@@ -115,36 +106,38 @@ if __name__ == '__main__':
     # saver.restore(sess, expr_dir + 'ganMNIST/20170707/214_model.ckpt')  
      
     Xeval = np.load(data_dir + '%s/eval.npz' % networktype.replace('_A2B','').replace('_B2A',''))['data']    
-    if direction == 'A2B':# from label to natural image
+    if direction == 'A2B': # from natural image to labels
+            A_test = Xeval[:4, :, :, :3]
+            B_test = Xeval[:4, :, :, 3:] 
+    else: # from label to natural image            
             A_test = Xeval[:4, :, :, 3:]
             B_test = Xeval[:4, :, :, :3]
-    else:# from natural image to labels
-            A_test = Xeval[:4, :, :, :3]
-            B_test = Xeval[:4, :, :, 3:]  
-    
-    vis_square(retransform(A_test), [2,2], save_path=work_dir + 'Aorig.jpg')
-    vis_square(retransform(B_test), [2,2], save_path=work_dir + 'Borig.jpg')
+ 
+    taskImg = retransform(np.concatenate([A_test, B_test]))
+    vis_square(taskImg, [4,2], save_path=work_dir + 'task.jpg')
        
     k = 1
       
     for it in range(1, max_iter): 
         X = data.train.next_batch(batch_size)
-        if direction == 'A2B':# from label to natural image
+        if direction == 'A2B':# from natural image to labels
+            A = X[:, :, :, :3]
+            B = X[:, :, :, 3:] 
+        else: # from label to natural image
             A = X[:, :, :, 3:]
             B = X[:, :, :, :3]
-        else:# from natural image to labels
-            A = X[:, :, :, :3]
-            B = X[:, :, :, 3:]            
           
         for itD in range(k):
-            cur_Dscore, _ = sess.run([Dscore, Dtrain], feed_dict={inX: A, inTarget: B, is_training:True})
+            cur_Dscore, _ = sess.run([Dscore, Dtrain], feed_dict={inSource: A, inTarget: B, is_training:True})
             
-        cur_Gscore, _ = sess.run([Gscore, Gtrain], feed_dict={inX: A, inTarget: B, is_training:True})
+        cur_Gscore, _ = sess.run([Gscore, Gtrain], feed_dict={inSource: A, inTarget: B, is_training:True})
 
         if it % disp_int == 0:
-            GX_sample = sess.run(GX, feed_dict={inX:A_test, is_training:True})
+            GX_sample = sess.run(GX, feed_dict={inSource:A_test, is_training:True})
+            
+            testImg = retransform(np.concatenate([A_test, GX_sample, B_test]))
 
-            vis_square(retransform(GX_sample), [2,2], save_path=work_dir + 'Bgen_Iter_%d.jpg' % it)
+            vis_square(testImg, [3,4], save_path=work_dir + 'Iter_%d.jpg' % it)
             saver.save(sess, work_dir + "%.3d_model.ckpt" % it)
             if ('cur_Dscore' in vars()) and ('cur_Gscore' in vars()):
                 print("Iteration #%4d, Train Gscore = %f, Dscore=%f" % (it, cur_Gscore, cur_Dscore))
