@@ -2,11 +2,11 @@
 
 Class sweep: With the same z slowly move the class labels to smoothly generate different numbers
 
-![alt tag](trained_models/DCGAN_MNIST/class_sweep/class_sweep.gif)
+![alt tag](../trained_models/DCGAN_MNIST/class_sweep/class_sweep.gif)
 
 Z-Space interpolaton: Vary a coefficient that determines how much of two different Z values are used to sample from the generator.
 
-![alt tag](trained_models/DCGAN_MNIST/zspace_sweep/zspace_sweep.gif)
+![alt tag](../trained_models/DCGAN_MNIST/zspace_sweep/zspace_sweep.gif)
 
 Essentially combination of two works:
 
@@ -24,8 +24,8 @@ Above we see the results after 200 epochs of training with Adam update rule and 
 Isola et al 2016_Berkeley AI Research (BAIR) Laboratory
 
 #### Translation of CMP Images to Labels (A2B)
-![alt tag](trained_models/img2imgGAN_CMP_A2B/generated_3.jpg)
+![alt tag](../trained_models/img2imgGAN_CMP_A2B/generated_3.jpg)
 
 #### Translation of CMP Labels to Images (B2A)
-![alt tag](trained_models/img2imgGAN_CMP_B2A/generated_1.jpg)
+![alt tag](../trained_models/img2imgGAN_CMP_B2A/generated_1.jpg)
 
