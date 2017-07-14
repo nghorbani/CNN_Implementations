@@ -3,6 +3,9 @@
 Generative Adversarial Networks - Goodfellow et al
 Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks - Radford et al
 '''
+import sys
+sys.path.append('../common')
+
 from tools_config import *
 import os
 import matplotlib.pyplot as plt
