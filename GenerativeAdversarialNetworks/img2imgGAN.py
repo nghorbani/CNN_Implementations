@@ -5,7 +5,7 @@ Image-to-Image Translation with Conditional Adversarial Networks - Isola et al
 import sys
 sys.path.append('../common')
 
-from tools_config import *
+from tools_config import data_dir, expr_dir
 import os
 from tools_train import get_train_params, OneHot, vis_square
 from datetime import datetime

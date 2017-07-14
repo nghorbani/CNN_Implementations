@@ -6,7 +6,7 @@ Unsupervised Representation Learning with Deep Convolutional Generative Adversar
 import sys
 sys.path.append('../common')
 
-from tools_config import *
+from tools_config import data_dir, expr_dir
 import os
 import matplotlib.pyplot as plt
 from tools_train import get_train_params, OneHot, vis_square
@@ -27,11 +27,11 @@ def create_gan_G(z, labels, is_training, Cout=1, trainable=True, reuse=False, ne
         output: batchsize * 28 * 28 * 1'''
     with tf.variable_scope(networktype, reuse=reuse):
         z = tf.concat(axis=-1, values=[z, labels])
-        Gz = dense(z, is_training, Dout=4 * 4 * 256, act='reLu', norm='batchnorm', name='dense2')
+        Gz = dense(z, is_training, Cout=4 * 4 * 256, act='reLu', norm='batchnorm', name='dense1')
         Gz = tf.reshape(Gz, shape=[-1, 4, 4, 256])  # 4
         Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='reLu', norm='batchnorm', name='deconv1')  # 11
         Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=128, trainable=trainable, act='reLu', norm='batchnorm', name='deconv2')  # 25
-        Gz = deconv(Gz, is_training, kernel_w=4, stride=1, Cout=1, act=None, norm=None, name='deconv3')  # 28
+        Gz = deconv(Gz, is_training, kernel_w=4, stride=Cout, Cout=1, act=None, norm=None, name='deconv3')  # 28
         Gz = tf.nn.sigmoid(Gz)
     return Gz
 

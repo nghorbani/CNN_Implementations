@@ -14,7 +14,7 @@ def deconv(X, is_training, kernel_w, stride, Cout, epf=None, trainable=True, act
             output_shape = [in_shape2[0], out_w, out_w, Cout]
             Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=output_shape, padding='VALID'), b)
         else:
-            Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=[in_shape2[0], in_shape[1] * epf, in_shape[2] * epf, Cout], padding='SAME'), b)
+            Y = tf.nn.bias_add(tf.nn.conv2d_transpose(X, W, strides=[1, stride, stride, 1], output_shape=[in_shape2[0], in_shape2[1] * epf, in_shape2[2] * epf, Cout], padding='SAME'), b)
         if norm != None:
             if norm.lower() == 'batchnorm':
                 Y = batch_norm(Y, is_training, trainable, name='%s_BN' % name)
@@ -33,7 +33,7 @@ def deconv(X, is_training, kernel_w, stride, Cout, epf=None, trainable=True, act
                 Y = tf.nn.sigmoid(Y)
             else:
                 print('Unknown activation function')     
-    return Y
+        return Y
 
 def conv(X, is_training, kernel_w, stride, Cout, pad=None, trainable=True, act='ReLu', norm=None, name='conv'):
     with tf.device('/gpu:0'):
@@ -64,15 +64,21 @@ def conv(X, is_training, kernel_w, stride, Cout, pad=None, trainable=True, act='
                 Y = tf.nn.sigmoid(Y)
             else:
                 print('Unknown activation function',print(norm.lower()))
-    return Y
+        return Y
 
-def dense(X, is_training, Dout, trainable=True, act='ReLu', norm=None, name='dense'):
+def dense(X, is_training, Cout, trainable=True, act='ReLu', norm=None, name='dense'):
+    '''output = batchsize * Cout'''
     with tf.device('/gpu:0'):
+        if X.get_shape().ndims == 4:
+            shapeIn = X.get_shape().as_list()
+            X = tf.reshape(X,shape = [-1, shapeIn[1]*shapeIn[2]*shapeIn[3]])
+            
         X = tf.identity(X)
         shapeIn = X.get_shape().as_list()
     
-        W = tf.get_variable(name='%s_W' % name, shape=[shapeIn[1], Dout], trainable=trainable, initializer=tf.random_normal_initializer(stddev=0.02))
-        b = bias_variable([Dout, ], name='%s_b' % name, trainable=trainable)
+        W = tf.get_variable(name='%s_W' % name, shape=[shapeIn[1], Cout], trainable=trainable, initializer=tf.random_normal_initializer(stddev=0.02))
+        b = bias_variable([Cout, ], name='%s_b' % name, trainable=trainable)
+
         Y = tf.nn.bias_add(tf.matmul(X, W), b)
         if norm != None:
             if norm.lower() == 'batchnorm':
@@ -164,5 +170,5 @@ def weight_variable(shape, name=None, trainable=True):
     shape: HxWxCinxCout
     """
     with tf.device('/gpu:0'):
-        # return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
-        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))
+        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
+        #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))

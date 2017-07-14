@@ -10,3 +10,4 @@ GenerativeAdversarialNetworks/notebooks/.ipynb_checkpoints/*
 *.index
 *.meta
 *checkpoint
+*.gz
