@@ -1,4 +1,4 @@
-# [**Deep Convolutional GANs**](notebooks/DCGAN_MNIST.ipynb)
+# [**Deep Convolutional GANs (DCGANs)**](notebooks/DCGAN_MNIST.ipynb)
 
 Class sweep: With the same z slowly move the class labels to smoothly generate different numbers
 
