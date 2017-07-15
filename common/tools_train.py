@@ -4,13 +4,13 @@ import custom_input_data
 from tools_general import np, tf
 import scipy.misc
 
-def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1, networktype='GAN_MNIST'):
+def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1,one_hot=True, networktype='GAN_MNIST'):
     
     if 'img2img' in networktype:
         data_dir = data_dir + '/' + networktype.replace('_A2B','').replace('_B2A','')
         data = custom_input_data.load_dataset(data_dir, networktype=networktype)
     else:
-        data = input_data.read_data_sets(data_dir, one_hot=True, reshape=False)
+        data = input_data.read_data_sets(data_dir, one_hot=one_hot, reshape=False)
     
     train_num = data.train.num_examples  # total number of training images
     test_num = data.test.num_examples  # total number of validation images

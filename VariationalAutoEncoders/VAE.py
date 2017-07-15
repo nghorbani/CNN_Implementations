@@ -104,11 +104,12 @@ if __name__ == '__main__':
           
     for it in range(max_iter): 
         Z = np.random.normal(size=[batch_size, latendDim], loc=0.0, scale=1.).astype(np.float32)
-        X, labels = data.test.next_batch(batch_size)
-             
+  
         if it % test_int == 0:  # Record summaries and test-set accuracy
             accumulated_loss = 0.0 
             for i_test in range(test_iter):
+                X, labels = data.test.next_batch(batch_size)
+                
                 recloss = sess.run(total_loss, feed_dict={inX:X, inL:labels, inZ: Z, is_training:False})
                 accumulated_loss = np.add(accumulated_loss, recloss)
                  
@@ -120,7 +121,7 @@ if __name__ == '__main__':
                 print('################ Best Results yet.[loss = %2.5f] saving results...' % best_test_loss)
                 vaeD_sample = sess.run(Xrec, feed_dict={inX:X, inL:labels_test, inZ: Z_test , is_training:False})
                 vis_square(vaeD_sample[:121], [11, 11], save_path=work_dir + 'Iter_%d.jpg' % it)
-                # saver.save(sess, work_dir + "%.3d_model.ckpt" % it)
+                saver.save(sess, work_dir + "%.3d_model.ckpt" % it)
          
         X, labels = data.train.next_batch(batch_size)
         recloss, _ = sess.run([total_loss, vaetrain], feed_dict={inX:X, inL:labels, inZ: Z, is_training:True})
