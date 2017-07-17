@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
 Auto-Encoding Variational Bayes - Kingma and Welling 2013
+
+This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my Implementations to the suggestion of the original authors.
+I have tried to Implement my own limited understanding of the original paper in hope to get a better insight into their work. 
+Use this code with no warranty and please respect the accompanying license.
 '''
+
 import sys
 sys.path.append('../common')
 
@@ -12,30 +17,23 @@ from tools_train import get_train_params, OneHot, vis_square
 from datetime import datetime
 from tools_general import tf, np
 from tools_networks import deconv, conv, dense, clipped_crossentropy, dropout
-
-def conch(A, B):
-    '''Concatenate channelwise'''
-    with tf.variable_scope("deconv"):
-        X = tf.concat([A, B], axis=3)
-        return X
-    
+  
 def create_VAE_E(Xin, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='vaeE'):
-    '''input : batchsize * latend_dim and labels to make the generator conditional
-        output: batchsize * 28 * 28 * 1'''
+    '''Xin: batchsize * H * W * Cin
+       labels: batchsize * num_classes
+       output1-2: batchsize * Cout'''
     with tf.variable_scope(networktype, reuse=reuse):
-        # Xin = conch(Xin, labels)
         Eout = conv(Xin, is_training, kernel_w=4, stride=2, Cout=64, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='deconv1')  # 14*14
         Eout = conv(Eout, is_training, kernel_w=4, stride=2, Cout=128, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='deconv2')  # 7*7
-        
-        Xmu = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_mean')
-        Xsigma = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_var')
-    return Xmu, Xsigma
+        posteriorMu = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_mean')
+        posteriorSigma = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_var')
+    return posteriorMu, posteriorSigma
      
 def create_VAE_D(z, labels, is_training, Cout=1, trainable=True, reuse=False, networktype='vaeD'):
-    '''input : batchsize * latend_dim and labels to make the generator conditional
-        output: batchsize * 28 * 28 * 1'''
+    '''z : batchsize * latend_dim 
+       labels: batchsize * num_classes
+       output: batchsize * 28 * 28 * 1'''
     with tf.variable_scope(networktype, reuse=reuse):
-        # #z = tf.concat(axis=-1, values=[z, labels])
         Gz = dense(z, is_training, Cout=4 * 4 * 256, act='reLu', norm='batchnorm', name='dense1')
         Gz = tf.reshape(Gz, shape=[-1, 4, 4, 256])  # 4
         Gz = deconv(Gz, is_training, kernel_w=5, stride=2, Cout=256, trainable=trainable, act='reLu', norm='batchnorm', name='deconv1')  # 11
@@ -54,15 +52,15 @@ def create_vae_trainer(base_lr=1e-4, networktype='VAE', latendDim=100):
     inL = tf.placeholder(tf.float32, [None, 10])
     inX = tf.placeholder(tf.float32, [None, 28, 28, 1])
 
-    Xmu, Xsigma = create_VAE_E(inX, inL, is_training, Cout=latendDim, trainable=True, reuse=False, networktype=networktype + '_vaeE') 
+    posteriorMu, posteriorSigma = create_VAE_E(inX, inL, is_training, Cout=latendDim, trainable=True, reuse=False, networktype=networktype + '_vaeE') 
     
-    Z = Xsigma * inZ + Xmu
+    Z = posteriorSigma * inZ + posteriorMu
     Xrec = create_VAE_D(Z, inL, is_training, trainable=True, reuse=False, networktype=networktype + '_vaeD')
     
     # E[log P(X|z)]
     reconstruction_loss = tf.reduce_sum((inX -1.0) * tf.log(1.0 - Xrec + eps) - inX * tf.log(Xrec + eps), reduction_indices = [1,2,3])
     # D_KL(Q(z|X) || P(z|X))
-    KL_QZ = 0.5 * tf.reduce_sum( tf.exp(Xsigma) + tf.square(Xmu) - 1 - Xsigma, reduction_indices = 1) 
+    KL_QZ = 0.5 * tf.reduce_sum( tf.exp(posteriorSigma) + tf.square(posteriorMu) - 1 - posteriorSigma, reduction_indices = 1) 
     
     total_loss = tf.reduce_mean( reconstruction_loss + KL_QZ)  
     

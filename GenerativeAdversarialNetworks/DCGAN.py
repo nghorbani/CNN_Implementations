@@ -2,7 +2,12 @@
 '''
 Generative Adversarial Networks - Goodfellow et al
 Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks - Radford et al
+
+This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my Implementations to the suggestion of the original authors.
+I have tried to Implement my own limited understanding of the original paper in hope to get a better insight into their work. 
+Use this code with no warranty and please respect the accompanying license.
 '''
+
 import sys
 sys.path.append('../common')
 
