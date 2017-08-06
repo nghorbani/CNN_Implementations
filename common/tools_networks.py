@@ -172,3 +172,14 @@ def weight_variable(shape, name=None, trainable=True):
     with tf.device('/gpu:0'):
         return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
         #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))
+def regularization(variables, regtype='L1', regcoef=0.1):
+    regs = tf.constant(0.0)
+    for var in variables:
+        if regtype.upper() == 'L2':
+                regs = tf.add(regs, tf.nn.l2_loss(var))
+        elif regtype.upper() == 'L1':
+            regs = tf.add(regs, tf.reduce_mean(tf.abs(var)))
+        else:
+            raise('regularization type not detected!')
+    print("Regularizing with type %s, coef %s for %d variables!" % (regtype, regcoef, len(variables)))
+    return tf.multiply(regcoef, regs)

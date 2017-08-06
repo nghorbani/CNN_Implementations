@@ -2,8 +2,8 @@
 '''
 Image-to-Image Translation with Conditional Adversarial Networks - Isola et al
 
-This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my Implementations to the suggestion of the original authors.
-I have tried to Implement my own limited understanding of the original paper in hope to get a better insight into their work. 
+This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my implementations to the suggestion of the original authors.
+I have tried to implement my own limited understanding of the original paper in hope to get a better insight into their work. 
 Use this code with no warranty and please respect the accompanying license.
 '''
 

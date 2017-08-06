@@ -2,8 +2,8 @@
 '''
 Auto-Encoding Variational Bayes - Kingma and Welling 2013
 
-This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my Implementations to the suggestion of the original authors.
-I have tried to Implement my own limited understanding of the original paper in hope to get a better insight into their work. 
+This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my implementations to the suggestion of the original authors.
+I have tried to implement my own limited understanding of the original paper in hope to get a better insight into their work. 
 Use this code with no warranty and please respect the accompanying license.
 '''
 
@@ -23,8 +23,8 @@ def create_VAE_E(Xin, labels, is_training, Cout=1, trainable=True, reuse=False, 
        labels: batchsize * num_classes
        output1-2: batchsize * Cout'''
     with tf.variable_scope(networktype, reuse=reuse):
-        Eout = conv(Xin, is_training, kernel_w=4, stride=2, Cout=64, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='deconv1')  # 14*14
-        Eout = conv(Eout, is_training, kernel_w=4, stride=2, Cout=128, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='deconv2')  # 7*7
+        Eout = conv(Xin, is_training, kernel_w=4, stride=2, Cout=64, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='conv1')  # 14*14
+        Eout = conv(Eout, is_training, kernel_w=4, stride=2, Cout=128, pad=1, trainable=trainable, act='reLu', norm='batchnorm', name='conv2')  # 7*7
         posteriorMu = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_mean')
         posteriorSigma = dense(Eout, is_training, trainable=trainable, Cout=Cout, act=None, norm=None, name='dense_var')
     return posteriorMu, posteriorSigma
