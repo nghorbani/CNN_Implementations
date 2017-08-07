@@ -1,7 +1,7 @@
 from tools_general import np, tf
 
 def deconv(X, is_training, kernel_w, stride, Cout, epf=None, trainable=True, act='ReLu', norm=None, name='deconv'):
-    ''' epf is the expansion factor. when used padding with we SAME
+    ''' epf is the expansion factor. when used padding will be SAME
     '''
     in_shape = X.get_shape().as_list()
     in_shape2 = tf.shape(X)
@@ -170,8 +170,8 @@ def weight_variable(shape, name=None, trainable=True):
     shape: HxWxCinxCout
     """
     with tf.device('/gpu:0'):
-        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
-        #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))
+        #return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.contrib.layers.xavier_initializer())
+        return tf.get_variable(name=name, shape=shape, dtype=tf.float32, trainable=trainable, initializer=tf.truncated_normal_initializer(stddev=0.02))
 def regularization(variables, regtype='L1', regcoef=0.1):
     regs = tf.constant(0.0)
     for var in variables:
