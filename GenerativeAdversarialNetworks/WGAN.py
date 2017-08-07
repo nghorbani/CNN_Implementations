@@ -54,26 +54,29 @@ def create_dcgan_trainer(base_lr=1e-4, networktype='dcgan', latentDim=100):
     D_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_D')
     print(len(D_varlist), [var.name for var in D_varlist])
 
-    Dloss = tf.reduce_mean(realLogits) - tf.reduce_mean(fakeLogits)
-    Gloss = tf.reduce_mean(tf.abs(fakeLogits))
+    Dloss = tf.reduce_mean(fakeLogits) - tf.reduce_mean(realLogits)
+    Gloss = -tf.reduce_mean(tf.abs(fakeLogits))
     
     Dweights = [var for var in D_varlist if '_W' in var.name]
     Dweights_clip_op = [var.assign(tf.clip_by_value(var, -0.01, 0.01)) for var in Dweights]
                 
-    # Gtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gloss, var_list=G_varlist)
-    # Dtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dloss, var_list=D_varlist)
+    Dtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.9).minimize(- Dloss, var_list=D_varlist)
+    Gtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.9).minimize(-Gloss, var_list=G_varlist)
     
-    Gtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(Gloss, var_list=G_varlist)
-    Dtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(Dloss, var_list=D_varlist)
+#     Dtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(Dloss, var_list=D_varlist)
+#     Gtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(-Gloss, var_list=G_varlist)
 
     return Gtrain_op, Dtrain_op, Dweights_clip_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op
 
 if __name__ == '__main__':
+    ''' Since discriminator in this gan is not trained to classifiy 
+    it is called a critic in the paper but i will stick to D, as i like it.'''
+    
     networktype = 'WGAN_MNIST'
     
     batch_size = 128
     base_lr = 5e-5  
-    epochs = 1000
+    epochs = 500
     latentDim = 100
     disp_every_epoch = 5
     
