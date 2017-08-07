@@ -57,7 +57,7 @@ def create_dcgan_trainer(base_lr=1e-4, networktype='dcgan', latentDim=100):
     
     batch_size = tf.shape(fakeLogits)[0]
     epsilon = tf.random_uniform(shape=[batch_size, 1, 1, 1], minval=0., maxval=1.)
-    #Xhat = epsilon * (Xph - Xgen_op) + Xgen_op
+
     Xhat = epsilon * Xph + (1 - epsilon) * Xgen_op
     D_Xhat = create_gan_D(Xhat, is_training, trainable=True, reuse=True, networktype=networktype + '_D')
     

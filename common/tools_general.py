@@ -6,7 +6,7 @@ os.environ['GLOG_minloglevel'] = '3'  # 0 - debug 1 - info (still a LOT of outpu
 
 import numpy as np
 
-# rng = np.random.RandomState(481542)
-# tf.set_random_seed(4815162342)
+#rng = np.random.RandomState(481542)
+#tf.set_random_seed(4815162342)
 tf.set_random_seed(None)
 rng = np.random.RandomState(None)

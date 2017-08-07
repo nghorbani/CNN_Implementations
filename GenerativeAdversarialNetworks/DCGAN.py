@@ -110,7 +110,7 @@ if __name__ == '__main__':
         cur_Dloss = dtemploss / k   
         
         Z = np.random.uniform(size=[batch_size, latentDim], low=-1., high=1.).astype(np.float32)     
-        cur_Gscore, _ = sess.run([Gloss, Gtrain_op], feed_dict={Zph:Z, is_training:True})
+        cur_Gloss, _ = sess.run([Gloss, Gtrain_op], feed_dict={Zph:Z, is_training:True})
     
         if disp_losses:
             Gsample = sess.run(Gout_op, feed_dict={Zph: Z, is_training:False})
