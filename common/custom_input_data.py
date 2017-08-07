@@ -46,14 +46,13 @@ class DataSet(object):
                 self._index_in_epoch = 0
                 rng.shuffle(self.indexlist)
                 
-
             idxtofetch.append(self.indexlist[self._index_in_epoch])
             self._index_in_epoch += 1
 
         return self.datas[idxtofetch, :, :, :]
     
     
-def fetch_data(data_dir, networktype, dtype=np.float32):
+def fetch_data(data_dir, dtype=np.float32, networktype = 'CMP'):
 
     Xtrain = np.load(os.path.join(data_dir, 'train.npz'))['data']
     Xtest = np.load(os.path.join(data_dir, 'test.npz'))['data']
