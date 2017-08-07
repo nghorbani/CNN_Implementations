@@ -82,7 +82,7 @@ if __name__ == '__main__':
     if not os.path.exists(work_dir): os.makedirs(work_dir)
         
     data = input_data.read_data_sets(data_dir + '/' + networktype, reshape=False)
-    disp_int = 2 * int(data.train.num_examples / batch_size) #every two epochs
+    disp_int = 2 * int(data.train.num_examples / batch_size)  # every two epochs
     
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
@@ -94,7 +94,8 @@ if __name__ == '__main__':
     saver = tf.train.Saver(var_list=var_list, max_to_keep=int(epochs * 0.1))
     # saver.restore(sess, expr_dir + 'ganMNIST/20170707/214_model.ckpt')  
         
-    it = 0       
+    it = 0   
+    disp_losses = False    
     while data.train.epochs_completed < epochs:
         k = 100 if it < 25 or it % 500 == 0 else 5  # from the original pytorch implementation
         dtemploss = 0
@@ -107,14 +108,16 @@ if __name__ == '__main__':
             sess.run(D_weights_clip_op)
             dtemploss += cur_Dloss
             
-            if it % disp_int == 0:
-                Gsample = sess.run(Gout_op, feed_dict={Zph: Z, is_training:False})
-                vis_square(Gsample[:121], [11, 11], save_path=work_dir + 'Epoch%.3d.jpg' % data.train.epochs_completed)
-                saver.save(sess, work_dir + "%.3d_model.ckpt" % data.train.epochs_completed)
-                if ('cur_Dloss' in vars()) and ('cur_Gloss' in vars()):
-                    print("Epoch #%4d, Train Gloss = %f, Dloss=%f" % (data.train.epochs_completed, cur_Gloss, cur_Dloss))
-            
+            if it % disp_int == 0:disp_losses = True
+                            
         cur_Dloss = dtemploss / k
             
         Z = np.random.uniform(size=[batch_size, latentDim], low=-1., high=1.).astype(np.float32)
         cur_Gloss, _ = sess.run([Gloss, Gtrain_op], feed_dict={Zph:Z, is_training:True})
+        
+        if disp_losses:
+            Gsample = sess.run(Gout_op, feed_dict={Zph: Z, is_training:False})
+            vis_square(Gsample[:121], [11, 11], save_path=work_dir + 'Epoch%.3d.jpg' % data.train.epochs_completed)
+            saver.save(sess, work_dir + "%.3d_model.ckpt" % data.train.epochs_completed)
+            print("Epoch #%.3d, Train Gloss = %f, Dloss=%f" % (data.train.epochs_completed, cur_Gloss, cur_Dloss))
+            disp_losses = False
