@@ -57,8 +57,8 @@ def create_dcgan_trainer(base_lr=1e-4, networktype='dcgan', latentDim=100):
     Dloss = tf.reduce_mean(realLogits) - tf.reduce_mean(fakeLogits)
     Gloss = tf.reduce_mean(tf.abs(fakeLogits))
     
-    D_weights = [var for var in D_varlist if '_W' in var.name]
-    D_weights_clip_op = [var.assign(tf.clip_by_value(var, -0.01, 0.01)) for var in D_weights]
+    Dweights = [var for var in D_varlist if '_W' in var.name]
+    Dweights_clip_op = [var.assign(tf.clip_by_value(var, -0.01, 0.01)) for var in Dweights]
                 
     # Gtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gloss, var_list=G_varlist)
     # Dtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dloss, var_list=D_varlist)
@@ -66,7 +66,7 @@ def create_dcgan_trainer(base_lr=1e-4, networktype='dcgan', latentDim=100):
     Gtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(Gloss, var_list=G_varlist)
     Dtrain_op = tf.train.RMSPropOptimizer(learning_rate=base_lr, decay=0.9).minimize(Dloss, var_list=D_varlist)
 
-    return Gtrain_op, Dtrain_op, D_weights_clip_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op
+    return Gtrain_op, Dtrain_op, Dweights_clip_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op
 
 if __name__ == '__main__':
     networktype = 'WGAN_MNIST'
@@ -81,12 +81,12 @@ if __name__ == '__main__':
     if not os.path.exists(work_dir): os.makedirs(work_dir)
         
     data = input_data.read_data_sets(data_dir + '/' + networktype, reshape=False)
-    disp_int = disp_every_epoch * int(data.train.num_examples / batch_size)  # every two epochs
+    disp_int = disp_every_epoch * int(np.ceil(data.train.num_examples / batch_size))  # every two epochs
     
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
     
-    Gtrain_op, Dtrain_op, D_weights_clip_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op = create_dcgan_trainer(base_lr, networktype, latentDim)
+    Gtrain_op, Dtrain_op, Dweights_clip_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op = create_dcgan_trainer(base_lr, networktype, latentDim)
     tf.global_variables_initializer().run()
     
     var_list = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES) if (networktype.lower() in var.name.lower()) and ('adam' not in var.name.lower())]  
@@ -104,7 +104,7 @@ if __name__ == '__main__':
             X, _ = data.train.next_batch(batch_size)
         
             cur_Dloss, _ = sess.run([Dloss, Dtrain_op], feed_dict={Xph:X, Zph:Z, is_training:True})
-            sess.run(D_weights_clip_op)
+            sess.run(Dweights_clip_op)
             dtemploss += cur_Dloss
             
             if it % disp_int == 0:disp_losses = True
