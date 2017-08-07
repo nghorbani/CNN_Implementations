@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 '''
 Wasserstein GAN - Arjovsky et al. 2017
-
-This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my implementations to the suggestion of the original authors.
-I have tried to implement my own limited understanding of the original paper in hope to get a better insight into their work. 
+ 
 Use this code with no warranty and please respect the accompanying license.
 '''
 from datetime import datetime
@@ -77,12 +75,13 @@ if __name__ == '__main__':
     base_lr = 5e-5  
     epochs = 1000
     latentDim = 100
+    disp_every_epoch = 5
     
     work_dir = expr_dir + '%s/%s/' % (networktype, datetime.strftime(datetime.today(), '%Y%m%d'))
     if not os.path.exists(work_dir): os.makedirs(work_dir)
         
     data = input_data.read_data_sets(data_dir + '/' + networktype, reshape=False)
-    disp_int = 2 * int(data.train.num_examples / batch_size)  # every two epochs
+    disp_int = disp_every_epoch * int(data.train.num_examples / batch_size)  # every two epochs
     
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
