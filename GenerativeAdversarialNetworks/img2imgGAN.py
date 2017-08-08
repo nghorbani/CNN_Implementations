@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Image-to-Image Translation with Conditional Adversarial Networks - Isola et al
+Image-to-Image Translation with Conditional Adversarial Networks - Isola et al. 2016
 
 This work is absolutely not an effort to reproduce exact results of the cited paper, nor I confine my implementations to the suggestion of the original authors.
 I have tried to implement my own limited understanding of the original paper in hope to get a better insight into their work. 
