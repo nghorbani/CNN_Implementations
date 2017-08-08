@@ -12,6 +12,6 @@ Use these code with no warranty and please respect the accompanying license.
 
 # [**Variational Auto-Encoders**](VariationalAutoEncoders)
 ### [**Auto-Encoding Variational Bayes - Kingma and Welling 2013**](VariationalAutoEncoders/VAE.ipynb)
-### [**Semi-Supervised Learning with Deep Generative Models - Kingma et al. 2014**](VariationalAutoEncoders/cVAE.ipynb)
+<!-- ### [**Semi-Supervised Learning with Deep Generative Models - Kingma et al. 2014**](VariationalAutoEncoders/cVAE.ipynb) -->
 
 
