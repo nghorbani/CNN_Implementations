@@ -41,3 +41,15 @@ def vis_square(X, nh_nw, save_path=None):
         return save_path
     else:
         return img
+    
+def count_model_params(variables=None):
+    if variables == None:
+        variables = tf.trainable_variables()
+    total_parameters = 0
+    for variable in variables:
+        shape = variable.get_shape()
+        variable_parametes = 1
+        for dim in shape:
+            variable_parametes *= dim.value
+        total_parameters += variable_parametes
+    return(total_parameters)
