@@ -12,10 +12,12 @@ sys.path.append('../common')
 from tools_config import data_dir, expr_dir
 import os
 import matplotlib.pyplot as plt
-from tools_train import get_train_params, OneHot, vis_square
+from tools_train import get_train_params, OneHot, vis_square, count_model_params
 from datetime import datetime
 from tools_general import tf, np
 from tools_networks import deconv, conv, dense, clipped_crossentropy, dropout
+
+import logging
 
 from tensorflow.examples.tutorials.mnist import input_data
     
@@ -30,7 +32,7 @@ def create_generator(Xin, is_training, Cout=1, reuse=False, networktype='ganG'):
         Xout = tf.nn.sigmoid(Xout)
     return Xout
 
-def create_Discriminator(Xin, is_training, reuse=False, networktype='ganD'):
+def create_discriminator(Xin, is_training, reuse=False, networktype='ganD'):
     with tf.variable_scope(networktype, reuse=reuse):
         Xout = conv(Xin, is_training, kernel_w=4, stride=2, pad=1, Cout=128, act='lrelu', norm=None, name='conv1')  # 14
         Xout = conv(Xout, is_training, kernel_w=4, stride=2, pad=1, Cout=256  , act='lrelu', norm='batchnorm', name='conv2')  # 7
@@ -48,37 +50,50 @@ def create_dcgan_trainer(base_lr=1e-4, latentD=100, networktype='dcgan'):
 
     Gout_op = create_generator(Zph, is_training, Cout=1, reuse=False, networktype=networktype + '_G') 
 
-    fakeLogits = create_Discriminator(Gout_op, is_training, reuse=False, networktype=networktype + '_D')
-    realLogits = create_Discriminator(Xph, is_training, reuse=True, networktype=networktype + '_D')
-    
-    G_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_G')
-    print(len(G_varlist), [var.name for var in G_varlist])
-
-    D_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_D')
-    print(len(D_varlist), [var.name for var in D_varlist])
+    fakeLogits = create_discriminator(Gout_op, is_training, reuse=False, networktype=networktype + '_D')
+    realLogits = create_discriminator(Xph, is_training, reuse=True, networktype=networktype + '_D')
           
     Gloss = clipped_crossentropy(fakeLogits, tf.ones_like(fakeLogits))
     Dloss = clipped_crossentropy(fakeLogits, tf.zeros_like(fakeLogits)) + clipped_crossentropy(realLogits, tf.ones_like(realLogits))
     
+    G_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_G')
+    logging.info('# of Trainable vars in Generator:%d -- %s' % (len(G_varlist), '; '.join([var.name.split('/')[1] for var in G_varlist])))
+
+    D_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_D')
+    logging.info('# of Trainable vars in Discriminator:%d -- %s' % (len(D_varlist), '; '.join([var.name.split('/')[1] for var in D_varlist])))
+    
     Gtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gloss, var_list=G_varlist)
     Dtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dloss, var_list=D_varlist)
-    
+
+    logging.info('Total Trainable Variables Count in Generator %2.3f M and in Discriminator: %2.3f M.' % (count_model_params(G_varlist) * 1e-6, count_model_params(D_varlist) * 1e-6,))
+
     return Gtrain_op, Dtrain_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op
 
 if __name__ == '__main__':
     networktype = 'DCGAN_MNIST'
     
     batch_size = 128
-    base_lr = 2e-4
-    epochs = 500
-    latentD = 2
-    disp_every_epoch = 5
     
+    base_lr = 2e-4
+    epochs = 100
+    
+    latentD = 2
+        
     work_dir = expr_dir + '%s/%s/' % (networktype, datetime.strftime(datetime.today(), '%Y%m%d'))
     if not os.path.exists(work_dir): os.makedirs(work_dir)
     
-    data = input_data.read_data_sets(data_dir + '/' + networktype, reshape=False)
-    disp_int = disp_every_epoch * int(data.train.num_examples / batch_size)  # every two epochs
+    starttime = datetime.now().replace(microsecond=0)
+    log_name = datetime.strftime(starttime, '%Y%m%d_%H%M')
+    
+    logging.basicConfig(filename=work_dir + '%s.log' % log_name, level=logging.DEBUG, format='%(asctime)s :: %(message)s', datefmt='%Y%m%d-%H%M%S')
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(console)
+
+    logging.info('Started Training of %s at %s' % (networktype, datetime.strftime(starttime, '%Y-%m-%d_%H:%M:%S')))
+    logging.info('\nTraining Hyperparamters: batch_size= %d, base_lr= %1.1e, epochs= %d, latentD= %d\n' % (batch_size, base_lr, epochs, latentD))
+
+    data, max_iter, test_iter, test_int, disp_int = get_train_params(data_dir, batch_size, epochs=epochs, test_in_each_epoch=1, networktype=networktype)
     
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
@@ -91,30 +106,26 @@ if __name__ == '__main__':
     # saver.restore(sess, expr_dir + 'ganMNIST/20170707/214_model.ckpt')  
         
     k = 1
+    
     it = 0
-    disp_losses = False    
-
-    while data.train.epochs_completed < epochs:
-        dtemploss = 0 
+    for it in range(max_iter): 
+        X, _ = data.train.next_batch(batch_size)
         
+        dtemploss = 0         
         for itD in range(k):
-            it += 1
             Z = np.random.uniform(size=[batch_size, latentD], low=-1., high=1.).astype(np.float32)
-            X, _ = data.train.next_batch(batch_size)
-            
             cur_Dloss, _ = sess.run([Dloss, Dtrain_op], feed_dict={Xph:X, Zph:Z, is_training:True})
-            dtemploss += cur_Dloss
-            
-            if it % disp_int == 0:disp_losses = True
-             
+            dtemploss += cur_Dloss             
         cur_Dloss = dtemploss / k   
         
-        Z = np.random.uniform(size=[batch_size, latentD], low=-1., high=1.).astype(np.float32)     
         cur_Gloss, _ = sess.run([Gloss, Gtrain_op], feed_dict={Zph:Z, is_training:True})
     
-        if disp_losses:
+        if it % disp_int == 0:
             Gsample = sess.run(Gout_op, feed_dict={Zph: Z, is_training:False})
             vis_square(Gsample[:121], [11, 11], save_path=work_dir + 'Epoch%.3d.jpg' % data.train.epochs_completed)
-            saver.save(sess, work_dir + "%.3d_model.ckpt" % data.train.epochs_completed)
-            print("Epoch #%.3d, Train Gloss = %f, Dloss=%f" % (data.train.epochs_completed, cur_Gloss, cur_Dloss))
-            disp_losses = False
+            saver.save(sess, work_dir + "%.3d_%.3d_model.ckpt" % (data.train.epochs_completed, it))
+            logging.info("Epoch #%.3d, Train Gloss = %2.5f, Dloss=%2.5f" % (data.train.epochs_completed, cur_Gloss, cur_Dloss))
+    
+    endtime = datetime.now().replace(microsecond=0)
+    logging.info('Finished Training of %s at %s' % (networktype, datetime.strftime(endtime, '%Y-%m-%d_%H:%M:%S')))
+    logging.info('Training done in %s !' % (endtime - starttime))

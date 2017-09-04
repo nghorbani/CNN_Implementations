@@ -10,7 +10,7 @@ def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1,one_h
         data_dir = data_dir + '/' + networktype.replace('_A2B','').replace('_B2A','')
         data = custom_input_data.load_dataset(data_dir, networktype=networktype)
     else:
-        data = input_data.read_data_sets(data_dir, one_hot=one_hot, reshape=False)
+        data = input_data.read_data_sets(data_dir + '/' + networktype, one_hot=one_hot, reshape=False)
     
     train_num = data.train.num_examples  # total number of training images
     test_num = data.test.num_examples  # total number of validation images
@@ -19,7 +19,7 @@ def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1,one_h
     max_iter = int(np.ceil(epochs * train_num / batch_size))
     test_iter = int(np.ceil(test_num / batch_size))
     test_interval = int(train_num / (test_in_each_epoch * batch_size))  # test 2 times in each epoch
-    disp_interval = int(test_interval / 2)
+    disp_interval = int(test_interval * 2)
     if disp_interval == 0: disp_interval = 1
     
     # snapshot_interval = test_interval * 5  # save at every epoch
