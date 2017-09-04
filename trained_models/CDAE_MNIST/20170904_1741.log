@@ -1,0 +1,180 @@
+20170904-174120 :: Started Training of CDAE_MNIST at 2017-09-04_17:41:20
+20170904-174120 :: 
+Training Hyperparamters: batch_size= 128, base_lr= 1.0e-03, epochs= 100, latentD= 2
+
+20170904-174128 :: Epoch    0, Iteration #   0, Test Reconstruction Loss = 397.14315
+20170904-174128 :: ### Best Test Reconstruction Loss yet.[397.14315]
+20170904-174131 :: Iteration #   0, Train Loss = 190.012573
+20170904-174147 :: Epoch    0, Iteration # 429, Test Reconstruction Loss = 35.97113
+20170904-174147 :: ### Best Test Reconstruction Loss yet.[35.97113]
+20170904-174207 :: Epoch    1, Iteration # 858, Test Reconstruction Loss = 35.04755
+20170904-174207 :: ### Best Test Reconstruction Loss yet.[35.04755]
+20170904-174209 :: Iteration # 858, Train Loss = 35.061638
+20170904-174226 :: Epoch    2, Iteration #1287, Test Reconstruction Loss = 33.59537
+20170904-174226 :: ### Best Test Reconstruction Loss yet.[33.59537]
+20170904-174244 :: Epoch    3, Iteration #1716, Test Reconstruction Loss = 32.98040
+20170904-174244 :: ### Best Test Reconstruction Loss yet.[32.98040]
+20170904-174246 :: Iteration #1716, Train Loss = 30.615543
+20170904-174303 :: Epoch    4, Iteration #2145, Test Reconstruction Loss = 32.83635
+20170904-174303 :: ### Best Test Reconstruction Loss yet.[32.83635]
+20170904-174321 :: Epoch    5, Iteration #2574, Test Reconstruction Loss = 33.05282
+20170904-174321 :: Iteration #2574, Train Loss = 33.601673
+20170904-174337 :: Epoch    6, Iteration #3003, Test Reconstruction Loss = 32.28571
+20170904-174337 :: ### Best Test Reconstruction Loss yet.[32.28571]
+20170904-174355 :: Epoch    7, Iteration #3432, Test Reconstruction Loss = 32.16898
+20170904-174355 :: ### Best Test Reconstruction Loss yet.[32.16898]
+20170904-174358 :: Iteration #3432, Train Loss = 33.906235
+20170904-174414 :: Epoch    8, Iteration #3861, Test Reconstruction Loss = 32.21207
+20170904-174429 :: Epoch    9, Iteration #4290, Test Reconstruction Loss = 31.84666
+20170904-174429 :: ### Best Test Reconstruction Loss yet.[31.84666]
+20170904-174432 :: Iteration #4290, Train Loss = 32.256794
+20170904-174448 :: Epoch   10, Iteration #4719, Test Reconstruction Loss = 31.75475
+20170904-174448 :: ### Best Test Reconstruction Loss yet.[31.75475]
+20170904-174506 :: Epoch   11, Iteration #5148, Test Reconstruction Loss = 31.54258
+20170904-174506 :: ### Best Test Reconstruction Loss yet.[31.54258]
+20170904-174509 :: Iteration #5148, Train Loss = 31.908987
+20170904-174525 :: Epoch   12, Iteration #5577, Test Reconstruction Loss = 31.48231
+20170904-174525 :: ### Best Test Reconstruction Loss yet.[31.48231]
+20170904-174543 :: Epoch   13, Iteration #6006, Test Reconstruction Loss = 31.60417
+20170904-174543 :: Iteration #6006, Train Loss = 33.582268
+20170904-174559 :: Epoch   14, Iteration #6435, Test Reconstruction Loss = 31.44557
+20170904-174559 :: ### Best Test Reconstruction Loss yet.[31.44557]
+20170904-174617 :: Epoch   15, Iteration #6864, Test Reconstruction Loss = 31.13510
+20170904-174617 :: ### Best Test Reconstruction Loss yet.[31.13510]
+20170904-174619 :: Iteration #6864, Train Loss = 33.134922
+20170904-174635 :: Epoch   16, Iteration #7293, Test Reconstruction Loss = 31.33979
+20170904-174651 :: Epoch   17, Iteration #7722, Test Reconstruction Loss = 31.56735
+20170904-174651 :: Iteration #7722, Train Loss = 33.423340
+20170904-174707 :: Epoch   18, Iteration #8151, Test Reconstruction Loss = 31.15947
+20170904-174723 :: Epoch   19, Iteration #8580, Test Reconstruction Loss = 31.29726
+20170904-174723 :: Iteration #8580, Train Loss = 31.179405
+20170904-174738 :: Epoch   20, Iteration #9009, Test Reconstruction Loss = 30.88093
+20170904-174738 :: ### Best Test Reconstruction Loss yet.[30.88093]
+20170904-174757 :: Epoch   21, Iteration #9438, Test Reconstruction Loss = 31.11786
+20170904-174757 :: Iteration #9438, Train Loss = 31.534599
+20170904-174812 :: Epoch   22, Iteration #9867, Test Reconstruction Loss = 31.05997
+20170904-174829 :: Epoch   23, Iteration #10296, Test Reconstruction Loss = 31.12953
+20170904-174829 :: Iteration #10296, Train Loss = 35.108604
+20170904-174845 :: Epoch   24, Iteration #10725, Test Reconstruction Loss = 30.88448
+20170904-174901 :: Epoch   25, Iteration #11154, Test Reconstruction Loss = 31.04633
+20170904-174901 :: Iteration #11154, Train Loss = 30.137074
+20170904-174917 :: Epoch   26, Iteration #11583, Test Reconstruction Loss = 31.09245
+20170904-174933 :: Epoch   27, Iteration #12012, Test Reconstruction Loss = 30.99968
+20170904-174933 :: Iteration #12012, Train Loss = 32.400673
+20170904-174949 :: Epoch   28, Iteration #12441, Test Reconstruction Loss = 30.89816
+20170904-175005 :: Epoch   29, Iteration #12870, Test Reconstruction Loss = 31.01290
+20170904-175005 :: Iteration #12870, Train Loss = 31.461538
+20170904-175021 :: Epoch   30, Iteration #13299, Test Reconstruction Loss = 30.79541
+20170904-175021 :: ### Best Test Reconstruction Loss yet.[30.79541]
+20170904-175040 :: Epoch   31, Iteration #13728, Test Reconstruction Loss = 30.76841
+20170904-175040 :: ### Best Test Reconstruction Loss yet.[30.76841]
+20170904-175042 :: Iteration #13728, Train Loss = 32.113426
+20170904-175059 :: Epoch   32, Iteration #14157, Test Reconstruction Loss = 30.87867
+20170904-175115 :: Epoch   33, Iteration #14586, Test Reconstruction Loss = 30.71223
+20170904-175115 :: ### Best Test Reconstruction Loss yet.[30.71223]
+20170904-175118 :: Iteration #14586, Train Loss = 28.347378
+20170904-175134 :: Epoch   34, Iteration #15015, Test Reconstruction Loss = 30.75850
+20170904-175150 :: Epoch   35, Iteration #15444, Test Reconstruction Loss = 30.63632
+20170904-175150 :: ### Best Test Reconstruction Loss yet.[30.63632]
+20170904-175152 :: Iteration #15444, Train Loss = 32.118225
+20170904-175208 :: Epoch   36, Iteration #15873, Test Reconstruction Loss = 31.17582
+20170904-175224 :: Epoch   37, Iteration #16302, Test Reconstruction Loss = 30.81411
+20170904-175225 :: Iteration #16302, Train Loss = 29.191650
+20170904-175241 :: Epoch   38, Iteration #16731, Test Reconstruction Loss = 30.71625
+20170904-175257 :: Epoch   39, Iteration #17160, Test Reconstruction Loss = 30.51806
+20170904-175257 :: ### Best Test Reconstruction Loss yet.[30.51806]
+20170904-175259 :: Iteration #17160, Train Loss = 30.928989
+20170904-175315 :: Epoch   40, Iteration #17589, Test Reconstruction Loss = 30.73520
+20170904-175332 :: Epoch   41, Iteration #18018, Test Reconstruction Loss = 30.66228
+20170904-175332 :: Iteration #18018, Train Loss = 31.251602
+20170904-175348 :: Epoch   42, Iteration #18447, Test Reconstruction Loss = 31.10712
+20170904-175404 :: Epoch   43, Iteration #18876, Test Reconstruction Loss = 30.48630
+20170904-175404 :: ### Best Test Reconstruction Loss yet.[30.48630]
+20170904-175406 :: Iteration #18876, Train Loss = 32.622459
+20170904-175422 :: Epoch   44, Iteration #19305, Test Reconstruction Loss = 30.86767
+20170904-175438 :: Epoch   45, Iteration #19734, Test Reconstruction Loss = 30.81879
+20170904-175438 :: Iteration #19734, Train Loss = 31.003757
+20170904-175454 :: Epoch   46, Iteration #20163, Test Reconstruction Loss = 30.65746
+20170904-175510 :: Epoch   47, Iteration #20592, Test Reconstruction Loss = 30.78364
+20170904-175510 :: Iteration #20592, Train Loss = 34.907661
+20170904-175526 :: Epoch   48, Iteration #21021, Test Reconstruction Loss = 30.50992
+20170904-175542 :: Epoch   49, Iteration #21450, Test Reconstruction Loss = 30.90503
+20170904-175542 :: Iteration #21450, Train Loss = 29.782585
+20170904-175558 :: Epoch   50, Iteration #21879, Test Reconstruction Loss = 30.41184
+20170904-175558 :: ### Best Test Reconstruction Loss yet.[30.41184]
+20170904-175616 :: Epoch   51, Iteration #22308, Test Reconstruction Loss = 30.56193
+20170904-175616 :: Iteration #22308, Train Loss = 29.830557
+20170904-175632 :: Epoch   52, Iteration #22737, Test Reconstruction Loss = 31.09555
+20170904-175648 :: Epoch   53, Iteration #23166, Test Reconstruction Loss = 30.53138
+20170904-175648 :: Iteration #23166, Train Loss = 30.872515
+20170904-175704 :: Epoch   54, Iteration #23595, Test Reconstruction Loss = 30.74066
+20170904-175719 :: Epoch   55, Iteration #24024, Test Reconstruction Loss = 30.65785
+20170904-175719 :: Iteration #24024, Train Loss = 26.314201
+20170904-175735 :: Epoch   56, Iteration #24453, Test Reconstruction Loss = 30.49881
+20170904-175751 :: Epoch   57, Iteration #24882, Test Reconstruction Loss = 30.57716
+20170904-175751 :: Iteration #24882, Train Loss = 28.135603
+20170904-175807 :: Epoch   58, Iteration #25311, Test Reconstruction Loss = 30.72696
+20170904-175823 :: Epoch   59, Iteration #25740, Test Reconstruction Loss = 30.77034
+20170904-175823 :: Iteration #25740, Train Loss = 31.180065
+20170904-175838 :: Epoch   60, Iteration #26169, Test Reconstruction Loss = 30.62360
+20170904-175855 :: Epoch   61, Iteration #26598, Test Reconstruction Loss = 30.58735
+20170904-175855 :: Iteration #26598, Train Loss = 36.603611
+20170904-175910 :: Epoch   62, Iteration #27027, Test Reconstruction Loss = 30.79444
+20170904-175926 :: Epoch   63, Iteration #27456, Test Reconstruction Loss = 30.55394
+20170904-175926 :: Iteration #27456, Train Loss = 30.741280
+20170904-175942 :: Epoch   64, Iteration #27885, Test Reconstruction Loss = 31.02456
+20170904-175957 :: Epoch   65, Iteration #28314, Test Reconstruction Loss = 30.89123
+20170904-175957 :: Iteration #28314, Train Loss = 30.737398
+20170904-180013 :: Epoch   66, Iteration #28743, Test Reconstruction Loss = 30.69533
+20170904-180029 :: Epoch   67, Iteration #29172, Test Reconstruction Loss = 30.82038
+20170904-180029 :: Iteration #29172, Train Loss = 28.593916
+20170904-180044 :: Epoch   68, Iteration #29601, Test Reconstruction Loss = 30.47828
+20170904-180100 :: Epoch   69, Iteration #30030, Test Reconstruction Loss = 30.60245
+20170904-180100 :: Iteration #30030, Train Loss = 29.788881
+20170904-180116 :: Epoch   70, Iteration #30459, Test Reconstruction Loss = 30.64347
+20170904-180131 :: Epoch   71, Iteration #30888, Test Reconstruction Loss = 30.97685
+20170904-180131 :: Iteration #30888, Train Loss = 34.356808
+20170904-180147 :: Epoch   72, Iteration #31317, Test Reconstruction Loss = 30.54886
+20170904-180203 :: Epoch   73, Iteration #31746, Test Reconstruction Loss = 30.62135
+20170904-180203 :: Iteration #31746, Train Loss = 28.307358
+20170904-180219 :: Epoch   74, Iteration #32175, Test Reconstruction Loss = 30.44639
+20170904-180235 :: Epoch   75, Iteration #32604, Test Reconstruction Loss = 30.91546
+20170904-180235 :: Iteration #32604, Train Loss = 28.584763
+20170904-180250 :: Epoch   76, Iteration #33033, Test Reconstruction Loss = 30.79348
+20170904-180306 :: Epoch   77, Iteration #33462, Test Reconstruction Loss = 30.62687
+20170904-180306 :: Iteration #33462, Train Loss = 32.300232
+20170904-180322 :: Epoch   78, Iteration #33891, Test Reconstruction Loss = 30.75127
+20170904-180338 :: Epoch   79, Iteration #34320, Test Reconstruction Loss = 30.50560
+20170904-180338 :: Iteration #34320, Train Loss = 32.411968
+20170904-180354 :: Epoch   80, Iteration #34749, Test Reconstruction Loss = 30.81544
+20170904-180410 :: Epoch   81, Iteration #35178, Test Reconstruction Loss = 30.61772
+20170904-180411 :: Iteration #35178, Train Loss = 30.288374
+20170904-180427 :: Epoch   82, Iteration #35607, Test Reconstruction Loss = 30.55069
+20170904-180442 :: Epoch   83, Iteration #36036, Test Reconstruction Loss = 30.77143
+20170904-180442 :: Iteration #36036, Train Loss = 29.504917
+20170904-180458 :: Epoch   84, Iteration #36465, Test Reconstruction Loss = 30.61506
+20170904-180514 :: Epoch   85, Iteration #36894, Test Reconstruction Loss = 30.61619
+20170904-180514 :: Iteration #36894, Train Loss = 31.513878
+20170904-180529 :: Epoch   86, Iteration #37323, Test Reconstruction Loss = 30.66665
+20170904-180545 :: Epoch   87, Iteration #37752, Test Reconstruction Loss = 30.69332
+20170904-180545 :: Iteration #37752, Train Loss = 30.328226
+20170904-180601 :: Epoch   88, Iteration #38181, Test Reconstruction Loss = 30.84308
+20170904-180617 :: Epoch   89, Iteration #38610, Test Reconstruction Loss = 30.65353
+20170904-180617 :: Iteration #38610, Train Loss = 29.993582
+20170904-180633 :: Epoch   90, Iteration #39039, Test Reconstruction Loss = 30.79464
+20170904-180648 :: Epoch   91, Iteration #39468, Test Reconstruction Loss = 30.65642
+20170904-180648 :: Iteration #39468, Train Loss = 28.654877
+20170904-180704 :: Epoch   92, Iteration #39897, Test Reconstruction Loss = 30.58162
+20170904-180720 :: Epoch   93, Iteration #40326, Test Reconstruction Loss = 30.81233
+20170904-180720 :: Iteration #40326, Train Loss = 34.879936
+20170904-180735 :: Epoch   94, Iteration #40755, Test Reconstruction Loss = 30.71372
+20170904-180751 :: Epoch   95, Iteration #41184, Test Reconstruction Loss = 30.71359
+20170904-180751 :: Iteration #41184, Train Loss = 31.219654
+20170904-180807 :: Epoch   96, Iteration #41613, Test Reconstruction Loss = 30.70767
+20170904-180823 :: Epoch   97, Iteration #42042, Test Reconstruction Loss = 30.59711
+20170904-180823 :: Iteration #42042, Train Loss = 34.328091
+20170904-180839 :: Epoch   98, Iteration #42471, Test Reconstruction Loss = 30.78618
+20170904-180854 :: Epoch   99, Iteration #42900, Test Reconstruction Loss = 30.69003
+20170904-180854 :: Iteration #42900, Train Loss = 28.777159
+20170904-180857 :: Finished Training of CDAE_MNIST at 2017-09-04_18:08:57
+20170904-180857 :: Training done in 0:27:37 ! Best Test Reconstruction Loss = 30.41184

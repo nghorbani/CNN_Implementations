@@ -1,5 +1,6 @@
 from tensorflow.examples.tutorials.mnist import input_data
 import custom_input_data
+import matplotlib.pyplot as plt
 
 from tools_general import np, tf
 import scipy.misc
@@ -41,6 +42,20 @@ def vis_square(X, nh_nw, save_path=None):
         return save_path
     else:
         return img
+    
+def plot_latent_variable(data, labels):
+    if data.shape[1] != 2:
+        pca = PCA(n_components=2)
+        data = pca.fit_transform(data)
+        print(pca.explained_variance_ratio_)
+    plt.figure(figsize=(8, 8))
+    plt.axes().set_aspect('equal')
+    color = plt.cm.rainbow(np.linspace(0, 1, 10))
+    for l, c in enumerate(color):
+        idxs = np.where(labels==l)
+        plt.scatter(data[idxs, 0], data[idxs, 1], c=c, label=l, linewidth=0, s=8)
+    plt.legend()
+    plt.show()
     
 def count_model_params(variables=None):
     if variables == None:
