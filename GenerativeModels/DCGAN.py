@@ -53,21 +53,21 @@ def create_dcgan_trainer(base_lr=1e-4, latentD=100, networktype='dcgan'):
     fakeLogits = create_discriminator(Gout_op, is_training, reuse=False, networktype=networktype + '_D')
     realLogits = create_discriminator(Xph, is_training, reuse=True, networktype=networktype + '_D')
           
-    Gloss = clipped_crossentropy(fakeLogits, tf.ones_like(fakeLogits))
-    Dloss = clipped_crossentropy(fakeLogits, tf.zeros_like(fakeLogits)) + clipped_crossentropy(realLogits, tf.ones_like(realLogits))
+    gen_loss_op = clipped_crossentropy(fakeLogits, tf.ones_like(fakeLogits))
+    dis_loss_op = clipped_crossentropy(fakeLogits, tf.zeros_like(fakeLogits)) + clipped_crossentropy(realLogits, tf.ones_like(realLogits))
     
-    G_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_G')
-    logging.info('# of Trainable vars in Generator:%d -- %s' % (len(G_varlist), '; '.join([var.name.split('/')[1] for var in G_varlist])))
+    gen_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_G')
+    logging.info('# of Trainable vars in Generator:%d -- %s' % (len(gen_varlist), '; '.join([var.name.split('/')[1] for var in gen_varlist])))
 
-    D_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_D')
-    logging.info('# of Trainable vars in Discriminator:%d -- %s' % (len(D_varlist), '; '.join([var.name.split('/')[1] for var in D_varlist])))
+    dis_varlist = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=networktype + '_D')
+    logging.info('# of Trainable vars in Discriminator:%d -- %s' % (len(dis_varlist), '; '.join([var.name.split('/')[1] for var in dis_varlist])))
     
-    Gtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Gloss, var_list=G_varlist)
-    Dtrain_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(Dloss, var_list=D_varlist)
+    gen_train_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(gen_loss_op, var_list=gen_varlist)
+    dis_train_op = tf.train.AdamOptimizer(learning_rate=base_lr, beta1=0.5).minimize(dis_loss_op, var_list=dis_varlist)
 
-    logging.info('Total Trainable Variables Count in Generator %2.3f M and in Discriminator: %2.3f M.' % (count_model_params(G_varlist) * 1e-6, count_model_params(D_varlist) * 1e-6,))
+    logging.info('Total Trainable Variables Count in Generator %2.3f M and in Discriminator: %2.3f M.' % (count_model_params(gen_varlist) * 1e-6, count_model_params(dis_varlist) * 1e-6,))
 
-    return Gtrain_op, Dtrain_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op
+    return gen_train_op, dis_train_op, gen_loss_op, dis_loss_op, is_training, Zph, Xph, Gout_op
 
 if __name__ == '__main__':
     networktype = 'DCGAN_MNIST'
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     tf.reset_default_graph() 
     sess = tf.InteractiveSession()
     
-    Gtrain_op, Dtrain_op, Gloss, Dloss, is_training, Zph, Xph, Gout_op = create_dcgan_trainer(base_lr, latentD, networktype)
+    gen_train_op, dis_train_op, gen_loss_op, dis_loss_op, is_training, Zph, Xph, Gout_op = create_dcgan_trainer(base_lr, latentD, networktype)
     tf.global_variables_initializer().run()
     
     var_list = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES) if (networktype.lower() in var.name.lower()) and ('adam' not in var.name.lower())]  
@@ -114,17 +114,17 @@ if __name__ == '__main__':
         dtemploss = 0         
         for itD in range(k):
             Z = np.random.uniform(size=[batch_size, latentD], low=-1., high=1.).astype(np.float32)
-            cur_Dloss, _ = sess.run([Dloss, Dtrain_op], feed_dict={Xph:X, Zph:Z, is_training:True})
-            dtemploss += cur_Dloss             
-        cur_Dloss = dtemploss / k   
+            Dloss, _ = sess.run([dis_loss_op, dis_train_op], feed_dict={Xph:X, Zph:Z, is_training:True})
+            dtemploss += Dloss             
+        Dloss = dtemploss / k   
         
-        cur_Gloss, _ = sess.run([Gloss, Gtrain_op], feed_dict={Zph:Z, is_training:True})
+        cur_Gloss, _ = sess.run([gen_loss_op, gen_train_op], feed_dict={Zph:Z, is_training:True})
     
         if it % disp_int == 0:
             Gsample = sess.run(Gout_op, feed_dict={Zph: Z, is_training:False})
-            vis_square(Gsample[:121], [11, 11], save_path=work_dir + 'Epoch%.3d.jpg' % data.train.epochs_completed)
-            saver.save(sess, work_dir + "%.3d_%.3d_model.ckpt" % (data.train.epochs_completed, it))
-            logging.info("Epoch #%.3d, Train Gloss = %2.5f, Dloss=%2.5f" % (data.train.epochs_completed, cur_Gloss, cur_Dloss))
+            vis_square(Gsample[:121], [11, 11], save_path=work_dir + 'Gen_Iter_%d.jpg' % it)
+            saver.save(sess, work_dir + "Model_Iter_%.3d.ckpt" % it)
+            logging.info("Epoch #%.3d, Train Generator Loss = %2.5f, Discriminator Loss=%2.5f" % (data.train.epochs_completed, cur_Gloss, Dloss))
     
     endtime = datetime.now().replace(microsecond=0)
     logging.info('Finished Training of %s at %s' % (networktype, datetime.strftime(endtime, '%Y-%m-%d_%H:%M:%S')))

@@ -7,7 +7,7 @@ def deconv(X, is_training, kernel_w, stride, Cout, epf=None, trainable=True, act
     in_shape2 = tf.shape(X)
         
     W = weight_variable([kernel_w, kernel_w, Cout, in_shape[3]], trainable=trainable, name='%s_W' % name)  # HWCinCout
-    b = bias_variable([Cout, ], trainable=trainable, name='%s_b' % name)
+    b = tf.zeros([Cout,], tf.float32)#it seems there is a bug in tensorflow and adding zero as bias fixes the problem
     with tf.device('/gpu:0'):
         if epf == None:
             out_w = tf.cast(((in_shape2[1] - 1) * stride) + kernel_w, tf.int32)
@@ -41,11 +41,10 @@ def conv(X, is_training, kernel_w, stride, Cout, pad=None, trainable=True, act='
         in_shape = X.get_shape().as_list()
         
         W = weight_variable([kernel_w, kernel_w, in_shape[3], Cout], trainable=trainable, name='%s_W' % name)  # HWCinCout
-        b = bias_variable([Cout, ], trainable=trainable, name='%s_b' % name)
     
         if pad != None: 
             X = tf.pad(X, [[0, 0], [pad, pad], [pad, pad], [0, 0]], mode="CONSTANT")
-        Y = tf.nn.bias_add(tf.nn.conv2d(X, W, strides=[1, stride, stride, 1], padding='VALID'), b)
+        Y = tf.nn.conv2d(X, W, strides=[1, stride, stride, 1], padding='VALID')
         if norm != None:
             if norm.lower() == 'batchnorm':
                 Y = batch_norm(Y, is_training, trainable, name='%s_BN' % name)
@@ -77,9 +76,8 @@ def dense(X, is_training, Cout, trainable=True, act='ReLu', norm=None, name='den
         shapeIn = X.get_shape().as_list()
     
         W = tf.get_variable(name='%s_W' % name, shape=[shapeIn[1], Cout], trainable=trainable, initializer=tf.random_normal_initializer(stddev=0.02))
-        b = bias_variable([Cout, ], name='%s_b' % name, trainable=trainable)
 
-        Y = tf.nn.bias_add(tf.matmul(X, W), b)
+        Y = tf.matmul(X, W)
         if norm != None:
             if norm.lower() == 'batchnorm':
                 Y = batch_norm(Y, is_training, trainable, name='%s_BN' % name)
@@ -158,7 +156,7 @@ def lrelu(X, leak=0.2):
 def clipped_crossentropy(X, L):
     with tf.device('/gpu:0'):
         Y = tf.clip_by_value(X, 1e-7, 1. - 1e-7)
-        return tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=Y, labels=L))
+        return tf.reduce_mean(tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(logits=Y, labels=L), [1,2,3]))
 
 def bias_variable(shape, name=None, trainable=True):
     """return an initialized bias variable of a given shape"""

@@ -43,8 +43,9 @@ def create_cdae_trainer(base_lr=1e-4, latentD=2, networktype='CDAE'):
     is_training = tf.placeholder(tf.bool, [], 'is_training')
 
     Xph = tf.placeholder(tf.float32, [None, 28, 28, 1])
-
-    Xenc_op = create_encoder(Xph, is_training, latentD, reuse=False, networktype=networktype + '_Enc') 
+    
+    Xc_op = tf.cond(is_training, lambda: tf.nn.dropout(Xph, keep_prob=0.75), lambda: tf.identity(Xph))
+    Xenc_op = create_encoder(Xc_op, is_training, latentD, reuse=False, networktype=networktype + '_Enc') 
     Xrec_op = create_decoder(Xenc_op, is_training, latentD, reuse=False, networktype=networktype + '_Dec')
     
     # reconstruction loss
@@ -117,8 +118,8 @@ if __name__ == '__main__':
                 best_test_rec_loss = test_loss[it // test_int, 0]
                 logging.info('### Best Test Reconstruction Loss yet.[%2.5f]' % best_test_rec_loss)
                 cdae_sample = sess.run(Xrec_op, feed_dict={Xph:X, is_training:False})
-                vis_square(cdae_sample[:121], [11, 11], save_path=work_dir + 'Epoch_%.3d_Iter_%d.jpg' % (data.train.epochs_completed, it))
-                saver.save(sess, work_dir + "%.3d_%.3d_model.ckpt" % (data.train.epochs_completed, it))
+                vis_square(cdae_sample[:121], [11, 11], save_path=work_dir + 'Rec_Iter_%d.jpg' % it)
+                saver.save(sess, work_dir + "Model_Iter_%.3d.ckpt" % it)
          
         X, _ = data.train.next_batch(batch_size)
         recloss, _ = sess.run([rec_loss_op, train_step_op], feed_dict={Xph:X, is_training:True})

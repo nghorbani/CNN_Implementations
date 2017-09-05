@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from tools_general import np, tf
 import scipy.misc
 
-def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1,one_hot=True, networktype='GAN_MNIST'):
+def get_train_params(data_dir, batch_size, epochs=20, test_in_each_epoch=1,one_hot=False, networktype='GAN_MNIST'):
     
     if 'img2img' in networktype:
         data_dir = data_dir + '/' + networktype.replace('_A2B','').replace('_B2A','')
@@ -57,6 +57,28 @@ def plot_latent_variable(data, labels):
     plt.legend()
     plt.show()
     
+def demo_latent_variable(Xrec, Z_mu, labels, save_path):
+    num_colors = ['C0.','C1.','C2.','C3.','C4.','C5.','C6.','C7.','C8.','C9.']
+    fig = plt.figure(figsize=(10,5))
+    #fig.suptitle('Iter. #%d, Test_loss = %1.5f'%(it,best_test_loss))
+    likelihood = np.zeros([100, 28, 28, 1])
+    ax1 = fig.add_subplot(121)
+    for num in range(10):
+        ax1.plot(Z_mu[np.where(labels==num)[0],0],Z_mu[np.where(labels==num)[0],1],num_colors[num], label='%d'%num)
+        likelihood[np.arange(0,100,10)+num] = Xrec[np.where(labels==num)[0][:10]]
+        #print(np.arange(0,100,10)+num)
+    ax1.legend(loc='upper right', bbox_to_anchor=(1.1, 1.05), ncol=1, fancybox=True, shadow=True)
+    ax1.set_xlabel('Latent Dimension #1');ax1.set_ylabel('Latent Dimension #2')
+    ax1.set_ylim([-7,7]);ax1.set_xlim([-7,7])
+
+    ax2 = fig.add_subplot(122)
+    ax2.imshow(vis_square(likelihood, [10, 10]), cmap='gray')
+    ax2.set_xticks([])
+    ax2.set_yticks([])
+
+    plt.savefig(save_path, dpi=300)
+    plt.close()
+    
 def count_model_params(variables=None):
     if variables == None:
         variables = tf.trainable_variables()
@@ -68,3 +90,13 @@ def count_model_params(variables=None):
             variable_parametes *= dim.value
         total_parameters += variable_parametes
     return(total_parameters)
+
+def get_demo_data(data, spl=50):
+    all_test_set, all_labels = data.test.next_batch(data.test.num_examples)
+    Xdemo = np.zeros([spl*10, 28,28,1])
+    Xdemo_labels = np.zeros([spl*10, 1])
+    for num in range(10):
+        Xdemo[spl*num:spl*num+spl,:] = all_test_set[np.where(all_labels==num)[0]][0:spl]
+        Xdemo_labels[spl*num:spl*num+spl,:] = num
+    Xdemo_labels_OH = OneHot(Xdemo_labels.astype(np.int32))
+    return Xdemo, Xdemo_labels
