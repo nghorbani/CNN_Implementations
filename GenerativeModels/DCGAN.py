@@ -10,7 +10,7 @@ import sys
 sys.path.append('../common')
 
 from tools_config import data_dir, expr_dir
-import os
+import os, sys, shutil
 import matplotlib.pyplot as plt
 from tools_train import get_train_params, OneHot, vis_square, count_model_params
 from datetime import datetime
@@ -92,6 +92,8 @@ if __name__ == '__main__':
 
     logging.info('Started Training of %s at %s' % (networktype, datetime.strftime(starttime, '%Y-%m-%d_%H:%M:%S')))
     logging.info('\nTraining Hyperparamters: batch_size= %d, base_lr= %1.1e, epochs= %d, latentD= %d\n' % (batch_size, base_lr, epochs, latentD))
+
+    shutil.copy2(os.path.basename(sys.argv[0]), work_dir)   
 
     data, max_iter, test_iter, test_int, disp_int = get_train_params(data_dir, batch_size, epochs=epochs, test_in_each_epoch=1, networktype=networktype)
     
