@@ -5,7 +5,7 @@
 data/*
 .settings/org.eclipse.core.resources.prefs
 results/*
-GenerativeAdversarialNetworks/.ipynb_checkpoints
+GenerativeModels/.ipynb_checkpoints
 *.data-00000-of-00001
 *.index
 *.meta
