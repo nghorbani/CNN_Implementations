@@ -2,6 +2,7 @@
 '''
 Stacked Denoising Autoencoders: Learning Useful Representations in a Deep Network with a Local Denoising Criterion. Vincent et al. 2010
 
+My code is non stack version...
 Use this code with no warranty and please respect the accompanying license.
 '''
 
